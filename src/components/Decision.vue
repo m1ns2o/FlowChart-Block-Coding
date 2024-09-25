@@ -22,16 +22,14 @@
     justify-content: center;
     cursor: move;
     background-color: #fff;
-    border: 1px solid #999;
+    /* border: 1px solid #999; */
     user-select: none;
     z-index: 1;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    /* box-shadow: 0 2px 5px rgba(0,0,0,0.1); */
   }
   .decision {
     background-color: #e9ecef;
     /* transform: rotate(45deg); */
-    width: 200px;
-  height: 100px;
   /* background: #f1c40f; */
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   /* display: flex; */

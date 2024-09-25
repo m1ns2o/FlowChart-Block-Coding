@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <h2>순서도 컴포넌트</h2>
+  <div class="main">
     <div class="components-list">
       <div
         v-for="component in flowchartComponents"
@@ -12,8 +11,8 @@
         <component :is="getComponent(component.type)" :name="component.name" />
       </div>
     </div>
-    <h2>캔버스</h2>
     <div
+      ref="canvasRef"
       class="canvas"
       @dragover.prevent
       @drop="onDrop"
@@ -22,7 +21,7 @@
       @mouseup="stopDrag"
       @mouseleave="stopDrag"
     >
-      <svg class="connections" :width="800" :height="600">
+      <svg class="connections" :width="canvasSize.width" :height="canvasSize.height">
         <path
           v-for="(connection, index) in connections"
           :key="index"
@@ -60,12 +59,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Start from './Start.vue'
 import Process from './Process.vue'
 import Decision from './Decision.vue'
 import End from './End.vue'
 import Variable from './Variable.vue'
+import Input from './Input.vue'
+import Output from './Output.vue'
 
 const props = defineProps({
   flowchartComponents: {
@@ -86,6 +87,9 @@ const COMPONENT_WIDTH = 200
 const COMPONENT_HEIGHT = 60
 const VERTICAL_SPACING = 200
 
+const canvasRef = ref(null)
+const canvasSize = ref({ width: 1500, height: 2000 })
+
 const getComponent = (type) => {
   const componentMap = {
     'Start': Start,
@@ -93,6 +97,8 @@ const getComponent = (type) => {
     'Decision': Decision,
     'End': End,
     'Variable': Variable,
+    'Input': Input,
+    'Output': Output
   }
   return componentMap[type] || Process // 기본값으로 Process 반환
 }
@@ -135,6 +141,7 @@ const onDrop = (event) => {
     y
   })
   emit('update:canvasItems', canvasItems.value)
+  updateCanvasSize()
 }
 
 const startItemDrag = (event, index) => {
@@ -154,6 +161,7 @@ const doDrag = (event) => {
     canvasItems.value[index].x = event.clientX - dragStartX.value
     canvasItems.value[index].y = event.clientY - dragStartY.value
     emit('update:canvasItems', canvasItems.value)
+    updateCanvasSize()
   }
 }
 
@@ -176,37 +184,74 @@ const throttle = (func, limit) => {
 
 const throttledDoDrag = throttle(doDrag, 16)
 
-// 새로 추가된 메서드: 컴포넌트 삭제
 const deleteItem = (index) => {
   canvasItems.value.splice(index, 1)
   selectedItemIndex.value = null
   emit('update:canvasItems', canvasItems.value)
+  updateCanvasSize()
 }
+
+const updateCanvasSize = () => {
+  if (canvasRef.value) {
+    const rect = canvasRef.value.getBoundingClientRect()
+    canvasSize.value = {
+      width: Math.max(rect.width, ...canvasItems.value.map(item => item.x + COMPONENT_WIDTH)),
+      height: Math.max(rect.height, ...canvasItems.value.map(item => item.y + COMPONENT_HEIGHT))
+    }
+  }
+}
+
+onMounted(() => {
+  updateCanvasSize()
+  window.addEventListener('resize', updateCanvasSize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateCanvasSize)
+})
 </script>
 
 <style scoped>
+.main {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+}
+
 .components-list {
   display: flex;
+  flex-direction: column;
+  height: 100%;
   gap: 50px;
-  margin-bottom: 20px;
-  padding: 30px;
+  width: 300px;
+  align-items: center;
+  padding-top: 50px;
   border: 1px solid #ccc;
+  overflow-y: auto;
 }
+
 .draggable-component {
   cursor: move;
 }
+
 .canvas {
-  width: 800px;
-  height: 600px;
+  width: 80%;
+  /* flex: 1; */
+  height: 90%;
+  overflow-x: hidden; /* 가로 스크롤을 숨김 */
+  overflow-y: auto;
   border: 2px solid #333;
   position: relative;
 }
+
 .connections {
   position: absolute;
   top: 0;
   left: 0;
   pointer-events: none;
 }
+
 .selected {
   outline: 2px solid #007bff;
 }
