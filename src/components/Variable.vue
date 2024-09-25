@@ -1,5 +1,5 @@
 <template>
-    <div class="flowchart-component process">
+    <div class="flowchart-component variable">
       {{ name }}
     </div>
   </template>
@@ -8,7 +8,7 @@
   defineProps({
     name: {
       type: String,
-      default: '프로세스'
+      default: '변수'
     }
   })
   </script>
@@ -27,7 +27,8 @@
     z-index: 1;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
-  .process {
-    background-color: #f8f9fa;
+  .varialbe {
+    /* border-radius: 30px; */
+    background-color: #e9ecef;
   }
   </style>

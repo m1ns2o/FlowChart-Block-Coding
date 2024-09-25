@@ -15,7 +15,7 @@
   
   <style scoped>
   .flowchart-component {
-    width: 100px;
+    width: 200px;
     height: 100px;
     display: flex;
     align-items: center;
@@ -29,10 +29,17 @@
   }
   .decision {
     background-color: #e9ecef;
-    transform: rotate(45deg);
+    /* transform: rotate(45deg); */
+    width: 200px;
+  height: 100px;
+  /* background: #f1c40f; */
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  /* display: flex; */
+  align-items: center;
+  justify-content: center;
   }
   .decision-text {
-    transform: rotate(-45deg);
+    /* transform: rotate(-45deg); */
     display: inline-block;
     width: 100%;
     text-align: center;
