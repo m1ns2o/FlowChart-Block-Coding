@@ -30,11 +30,11 @@
   .decision {
     background-color: #e9ecef;
     /* transform: rotate(45deg); */
-  /* background: #f1c40f; */
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-  /* display: flex; */
-  align-items: center;
-  justify-content: center;
+    /* background: #f1c40f; */
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    /* display: flex; */
+    align-items: center;
+    justify-content: center;
   }
   .decision-text {
     /* transform: rotate(-45deg); */

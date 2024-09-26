@@ -52,10 +52,15 @@
         @contextmenu.prevent="deleteItem(index)"
         :class="{ selected: selectedItemIndex === index }"
       >
-        <component :is="getComponent(item.type)" :name="item.name" />
+        <component 
+          :is="getComponent(item.type)" 
+          v-model:name="item.name"
+          @update:name="updateItemName(index, $event)"
+        />
       </div>
     </div>
   </div>
+  {{ canvasItems }}
 </template>
 
 <script setup>
@@ -100,7 +105,7 @@ const getComponent = (type) => {
     'Input': Input,
     'Output': Output
   }
-  return componentMap[type] || Process // 기본값으로 Process 반환
+  return componentMap[type] || Process
 }
 
 const connections = computed(() => {
@@ -201,6 +206,11 @@ const updateCanvasSize = () => {
   }
 }
 
+const updateItemName = (index, newName) => {
+  canvasItems.value[index].name = newName
+  emit('update:canvasItems', canvasItems.value)
+}
+
 onMounted(() => {
   updateCanvasSize()
   window.addEventListener('resize', updateCanvasSize)
@@ -237,12 +247,12 @@ onUnmounted(() => {
 
 .canvas {
   width: 80%;
-  /* flex: 1; */
   height: 90%;
-  overflow-x: hidden; /* 가로 스크롤을 숨김 */
+  overflow-x: hidden;
   overflow-y: auto;
   border: 2px solid #333;
   position: relative;
+  margin: auto;
 }
 
 .connections {

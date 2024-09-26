@@ -15,7 +15,7 @@
   
   <style scoped>
   .flowchart-component {
-    width: 100px;
+    width: 200px;
     height: 60px;
     display: flex;
     align-items: center;
