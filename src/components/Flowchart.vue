@@ -27,7 +27,7 @@
           :key="index"
           :d="connection.path"
           fill="none"
-          stroke="#007bff"
+          :stroke="connection.color"
           stroke-width="2"
           marker-end="url(#arrowhead)"
         />
@@ -59,8 +59,15 @@
         />
       </div>
     </div>
+    <div class="sorted-items">
+      <h3>정렬된 아이템:</h3>
+      <ul>
+        <li v-for="(item, index) in sortedCanvasItems" :key="index">
+          {{ item.name }} ({{ item.type }})
+        </li>
+      </ul>
+    </div>
   </div>
-  {{ canvasItems }}
 </template>
 
 <script setup>
@@ -91,6 +98,7 @@ const dragStartY = ref(0)
 const COMPONENT_WIDTH = 200
 const COMPONENT_HEIGHT = 60
 const VERTICAL_SPACING = 200
+const HORIZONTAL_SPACING = 200
 
 const canvasRef = ref(null)
 const canvasSize = ref({ width: 1500, height: 2000 })
@@ -115,20 +123,97 @@ const connections = computed(() => {
   for (let i = 0; i < sortedItems.length - 1; i++) {
     const item1 = sortedItems[i]
     const item2 = sortedItems[i + 1]
-    
-    if (Math.abs(item2.y - item1.y) <= VERTICAL_SPACING) {
-      const startX = item1.x + COMPONENT_WIDTH / 2
-      const startY = item1.y + COMPONENT_HEIGHT
-      const endX = item2.x + COMPONENT_WIDTH / 2
-      const endY = item2.y
+    let item3 
+    if(sortedItems[i + 2] != null)
+      item3 = sortedItems[i + 2]
 
-      const midY = (startY + endY) / 2
-      const path = `M${startX},${startY} C${startX},${midY} ${endX},${midY} ${endX},${endY}`
-      lines.push({ path })
+    if(item1.type == 'Decision' && item3 != undefined){ // 조건문일 때
+      console.log(item3)
+      if (Math.abs(item3.y - item2.y) <= VERTICAL_SPACING && Math.abs(item3.x - item2.x) <= HORIZONTAL_SPACING) {
+        console.log(1)
+        const startX = item2.x
+        const startY = item2.y + COMPONENT_HEIGHT / 2
+        const endX = item3.x + COMPONENT_WIDTH / 2
+        const endY = item3.y
+
+        const midY = (startY + endY) / 2
+        const path = `M${startX},${startY} C${startX},${midY} ${endX},${midY} ${endX},${endY}`
+        lines.push({ path, color: '#FF0000' }) // 빨간색으로 설정
+      }
+      if (Math.abs(item2.y - item1.y) <= VERTICAL_SPACING) {
+        // const startX = item1.x + COMPONENT_WIDTH / 2
+        console.log(2)
+        const startX = item1.x > item2.x ? item1.x + 10 : item1.x + COMPONENT_WIDTH -10
+        const startY = item1.y + COMPONENT_HEIGHT - 10
+        const endX = item2.x + COMPONENT_WIDTH / 2
+        const endY = item2.y
+
+        const midY = (startY + endY) / 2
+        const path = `M${startX},${startY} C${startX},${midY} ${endX},${midY} ${endX},${endY}`
+        lines.push({ path, color: '#00FF00' }) // 초록색으로 설정
+      }
+    } 
+    else{
+      if (Math.abs(item2.y - item1.y) <= VERTICAL_SPACING) {
+        const startX = item1.x + COMPONENT_WIDTH / 2
+        const startY = item1.y + COMPONENT_HEIGHT
+        const endX = item2.x + COMPONENT_WIDTH / 2
+        const endY = item2.y
+
+        const midY = (startY + endY) / 2
+        const path = `M${startX},${startY} C${startX},${midY} ${endX},${midY} ${endX},${endY}`
+        lines.push({ path, color: '#007bff' }) // 기본 파란색
+      }
     }
   }
   return lines
 })
+
+const sortedCanvasItems = computed(() => {
+  const items = [...canvasItems.value];
+  const sorted = [];
+  const processed = new Set();
+
+  while (sorted.length < items.length) {
+    let topItem = null;
+    let topIndex = -1;
+
+    for (let i = 0; i < items.length; i++) {
+      if (!processed.has(i) && (topItem === null || items[i].y < topItem.y)) {
+        topItem = items[i];
+        topIndex = i;
+      }
+    }
+
+    if (topIndex === -1) break;
+
+    sorted.push(topItem);
+    processed.add(topIndex);
+
+    let nextItem = null;
+    let nextIndex = -1;
+    let minDistance = Infinity;
+
+    for (let i = 0; i < items.length; i++) {
+      if (!processed.has(i)) {
+        const distance = items[i].y - (topItem.y + COMPONENT_HEIGHT);
+        if (distance > 0 && distance < minDistance &&
+            Math.abs(items[i].x - topItem.x) < COMPONENT_WIDTH) {
+          minDistance = distance;
+          nextItem = items[i];
+          nextIndex = i;
+        }
+      }
+    }
+
+    if (nextIndex !== -1) {
+      sorted.push(nextItem);
+      processed.add(nextIndex);
+    }
+  }
+
+  return sorted;
+});
 
 const onDragStart = (event, component) => {
   event.dataTransfer.setData('text/plain', JSON.stringify(component))
@@ -264,5 +349,16 @@ onUnmounted(() => {
 
 .selected {
   outline: 2px solid #007bff;
+}
+
+.sorted-items {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border-radius: 5px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 </style>
