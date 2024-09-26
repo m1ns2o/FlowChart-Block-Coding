@@ -59,6 +59,7 @@
         />
       </div>
     </div>
+     <!-- {{ canvasItems }}  -->
   </div>
 </template>
 
@@ -86,6 +87,7 @@ const selectedItemIndex = ref(null)
 const isDragging = ref(false)
 const dragStartX = ref(0)
 const dragStartY = ref(0)
+const componentList = ref([])
 
 const COMPONENT_WIDTH = 200
 const COMPONENT_HEIGHT = 60
@@ -108,30 +110,30 @@ const getComponent = (type) => {
   return componentMap[type] || Process
 }
 
-const findNearestRight = (item, items) => {
-  return items.find(other => 
-    other !== item && 
-    other.y >= item.y &&  // Decision y >= component y 조건
-    Math.abs(other.y - item.y) < VERTICAL_SPACING && 
-    other.x > item.x
-  );
-};
+// const findNearestRight = (item, items) => {
+//   return items.find(other => 
+//     other !== item && 
+//     other.y >= item.y &&  // Decision y >= component y 조건
+//     Math.abs(other.y - item.y) < VERTICAL_SPACING && 
+//     other.x > item.x
+//   );
+// };
 
-const findNearestBottom = (item, items) => {
-  return items.find(other => 
-    other !== item && 
-    other.y > item.y && 
-    Math.abs(other.x - item.x) < HORIZONTAL_SPACING
-  );
-};
+// const findNearestBottom = (item, items) => {
+//   return items.find(other => 
+//     other !== item && 
+//     other.y > item.y && 
+//     Math.abs(other.x - item.x) < HORIZONTAL_SPACING /2
+//   );
+// };
 
-const findNextItem = (item, items) => {
-  return items.find(other => 
-    other !== item && 
-    other.y > item.y && 
-    Math.abs(other.x - item.x) < HORIZONTAL_SPACING / 2
-  );
-};
+// const findNextItem = (item, items) => {
+//   return items.find(other => 
+//     other !== item && 
+//     other.y > item.y && 
+//     Math.abs(other.x - item.x) < HORIZONTAL_SPACING / 6
+//   );
+// };
 
 const createConnection = (from, to, color) => {
   const startX = from.x + COMPONENT_WIDTH / 2;
@@ -153,32 +155,91 @@ const createConnection = (from, to, color) => {
   return { path, color };
 };
 
+// const connections = computed(() => {
+//   const lines = [];
+//   const sortedItems = [...canvasItems.value].sort((a, b) => a.y - b.y);
+
+//   for (let i = 0; i < sortedItems.length; i++) {
+//     const item1 = sortedItems[i];
+    
+//     if (item1.type === 'Decision') {
+//       const rightBranch = findNearestRight(item1, sortedItems);
+//       const bottomBranch = findNearestBottom(item1, sortedItems);
+      
+//       if (rightBranch && rightBranch.y >= item1.y) {
+//         lines.push(createConnection(item1, rightBranch, '#00FF00')); // 녹색
+//       }
+//       if (bottomBranch) {
+//         lines.push(createConnection(item1, bottomBranch, '#FF0000')); // 빨간색
+//       }
+//     } else {
+//       const nextItem = findNextItem(item1, sortedItems);
+//       if (nextItem) {
+//         lines.push(createConnection(item1, nextItem, '#007bff')); // 파란색
+//       }
+//     }
+//   }
+//   return lines;
+// });
 const connections = computed(() => {
   const lines = [];
-  const sortedItems = [...canvasItems.value].sort((a, b) => a.y - b.y);
+  const items = canvasItems.value;
 
-  for (let i = 0; i < sortedItems.length; i++) {
-    const item1 = sortedItems[i];
-    
-    if (item1.type === 'Decision') {
-      const rightBranch = findNearestRight(item1, sortedItems);
-      const bottomBranch = findNearestBottom(item1, sortedItems);
+  items.forEach(item => {
+    if (item.type === 'Decision') {
+      const rightBranch = findNearestRight(item, items);
+      const bottomBranch = findNearestBottom(item, items);
       
-      if (rightBranch && rightBranch.y >= item1.y) {
-        lines.push(createConnection(item1, rightBranch, '#00FF00')); // 녹색
+      if (rightBranch) {
+        lines.push(createConnection(item, rightBranch, '#00FF00')); // 녹색
       }
       if (bottomBranch) {
-        lines.push(createConnection(item1, bottomBranch, '#FF0000')); // 빨간색
+        lines.push(createConnection(item, bottomBranch, '#FF0000')); // 빨간색
       }
     } else {
-      const nextItem = findNextItem(item1, sortedItems);
+      const nextItem = findNextItem(item, items);
       if (nextItem) {
-        lines.push(createConnection(item1, nextItem, '#007bff')); // 파란색
+        lines.push(createConnection(item, nextItem, '#007bff')); // 파란색
+        // if(!componentList.value.includes(item)){
+        //   componentList.value.push(item);
+        // }
+        // else{
+        //   console.log('중복')
+        // }
       }
     }
-  }
+    // console.log(items.value)
+  });
+
   return lines;
 });
+
+const findNearestRight = (item, items) => {
+  return items.find(other => 
+    other !== item && 
+    other.y >= item.y &&
+    Math.abs(other.y - item.y) < VERTICAL_SPACING && 
+    other.x > item.x
+  );
+};
+
+const findNearestBottom = (item, items) => {
+  return items.find(other => 
+    other !== item && 
+    other.y > item.y && 
+    Math.abs(other.x - item.x) < HORIZONTAL_SPACING / 2
+  );
+};
+
+const findNextItem = (item, items) => {
+  return items.find(other => 
+    other !== item && 
+    other.y > item.y && 
+    Math.abs(other.x - item.x) < HORIZONTAL_SPACING / 6
+  );
+};
+
+// createConnection 함수는 그대로 유지
 
 const isConnected = (item1, item2) => {
   return Math.abs(item2.y - item1.y) <= VERTICAL_SPACING &&
@@ -200,7 +261,7 @@ const sortedCanvasItems = computed(() => {
       const bottomBranch = findNearestBottom(item, items);
       
       if (rightBranch && rightBranch.y >= item.y) {
-        sorted.push([processItem(rightBranch)]);
+        processItem(rightBranch);
       }
       if (bottomBranch) {
         processItem(bottomBranch);
@@ -213,13 +274,23 @@ const sortedCanvasItems = computed(() => {
     }
   };
 
+  // 시작 아이템 찾기: 들어오는 연결이 없는 아이템
   const startItems = items.filter(item => 
-    !items.some(other => isConnected(other, item))
+    !items.some(other => 
+      (other.type === 'Decision' && (findNearestRight(other, items) === item || findNearestBottom(other, items) === item)) ||
+      (other.type !== 'Decision' && findNextItem(other, items) === item)
+    )
   );
 
   startItems.forEach(processItem);
-
   return sorted;
+});
+
+watch(sortedCanvasItems, (newValue) => {
+  console.log('Sorted Canvas Items:');
+  newValue.forEach((item, index) => {
+    console.log(`${index + 1}. Type: ${item.type}, Name: ${item.name}, Position: (${item.x}, ${item.y})`);
+  });
 });
 
 watch(sortedCanvasItems, (newValue) => {
@@ -263,7 +334,7 @@ const doDrag = (event) => {
     canvasItems.value[index].x = event.clientX - dragStartX.value
     canvasItems.value[index].y = event.clientY - dragStartY.value
     emit('update:canvasItems', canvasItems.value)
-    updateCanvasSize()
+    // updateCanvasSize()
   }
 }
 
@@ -290,7 +361,7 @@ const deleteItem = (index) => {
   canvasItems.value.splice(index, 1)
   selectedItemIndex.value = null
   emit('update:canvasItems', canvasItems.value)
-  updateCanvasSize()
+  // updateCanvasSize()
 }
 
 const updateCanvasSize = () => {
