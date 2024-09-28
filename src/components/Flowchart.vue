@@ -1,6 +1,7 @@
 <template>
   <div class="main">
     <div class="components-list">
+      <div class="nav_style"></div>
       <div
         v-for="component in flowchartComponents"
         :key="component.type"
@@ -395,6 +396,17 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
+.nav_style{
+  background-color: #B1C9EF;
+  width: 100%;
+  /* display: flex;
+  align-items: center;
+  justify-content: center; */
+  height: 5%;
+  margin: 0;
+  padding: 0;
+}
+
 .components-list {
   display: flex;
   flex-direction: column;
@@ -402,9 +414,10 @@ onUnmounted(() => {
   gap: 50px;
   width: 300px;
   align-items: center;
-  padding-top: 50px;
-  border: 1px solid #ccc;
+  /* padding-top: 50px; */
+  /* border: 1px solid #ccc; */
   overflow-y: auto;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
 
 .draggable-component {

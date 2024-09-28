@@ -26,6 +26,7 @@
     user-select: none;
     z-index: 1;
     /* box-shadow: 0 2px 5px rgba(0,0,0,0.1); */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   }
   .decision {
     background-color: #e9ecef;
