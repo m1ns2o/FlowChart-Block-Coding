@@ -59,7 +59,6 @@
         />
       </div>
     </div>
-     <!-- {{ canvasItems }}  -->
   </div>
 </template>
 
@@ -110,31 +109,6 @@ const getComponent = (type) => {
   return componentMap[type] || Process
 }
 
-// const findNearestRight = (item, items) => {
-//   return items.find(other => 
-//     other !== item && 
-//     other.y >= item.y &&  // Decision y >= component y 조건
-//     Math.abs(other.y - item.y) < VERTICAL_SPACING && 
-//     other.x > item.x
-//   );
-// };
-
-// const findNearestBottom = (item, items) => {
-//   return items.find(other => 
-//     other !== item && 
-//     other.y > item.y && 
-//     Math.abs(other.x - item.x) < HORIZONTAL_SPACING /2
-//   );
-// };
-
-// const findNextItem = (item, items) => {
-//   return items.find(other => 
-//     other !== item && 
-//     other.y > item.y && 
-//     Math.abs(other.x - item.x) < HORIZONTAL_SPACING / 6
-//   );
-// };
-
 const createConnection = (from, to, color) => {
   const startX = from.x + COMPONENT_WIDTH / 2;
   const startY = from.y + COMPONENT_HEIGHT;
@@ -149,38 +123,12 @@ const createConnection = (from, to, color) => {
   } else {
     // 옆으로 향하는 경우 (이 경우는 발생하지 않아야 하지만, 안전을 위해 추가)
     const midX = (startX + endX) / 2;
-    // path = `M${startX},${startY} C${midX},${startY} ${midX},${endY} ${endX},${endY}`;
+    path = `M${startX},${startY} C${midX},${startY} ${midX},${endY} ${endX},${endY}`;
   }
   
   return { path, color };
 };
 
-// const connections = computed(() => {
-//   const lines = [];
-//   const sortedItems = [...canvasItems.value].sort((a, b) => a.y - b.y);
-
-//   for (let i = 0; i < sortedItems.length; i++) {
-//     const item1 = sortedItems[i];
-    
-//     if (item1.type === 'Decision') {
-//       const rightBranch = findNearestRight(item1, sortedItems);
-//       const bottomBranch = findNearestBottom(item1, sortedItems);
-      
-//       if (rightBranch && rightBranch.y >= item1.y) {
-//         lines.push(createConnection(item1, rightBranch, '#00FF00')); // 녹색
-//       }
-//       if (bottomBranch) {
-//         lines.push(createConnection(item1, bottomBranch, '#FF0000')); // 빨간색
-//       }
-//     } else {
-//       const nextItem = findNextItem(item1, sortedItems);
-//       if (nextItem) {
-//         lines.push(createConnection(item1, nextItem, '#007bff')); // 파란색
-//       }
-//     }
-//   }
-//   return lines;
-// });
 const connections = computed(() => {
   const lines = [];
   const items = canvasItems.value;
@@ -200,17 +148,9 @@ const connections = computed(() => {
       const nextItem = findNextItem(item, items);
       if (nextItem) {
         lines.push(createConnection(item, nextItem, '#007bff')); // 파란색
-        // if(!componentList.value.includes(item)){
-        //   componentList.value.push(item);
-        // }
-        // else{
-        //   console.log('중복')
-        // }
       }
     }
-    // console.log(items.value)
   });
-
   return lines;
 });
 
@@ -239,64 +179,124 @@ const findNextItem = (item, items) => {
   );
 };
 
-// createConnection 함수는 그대로 유지
-
 const isConnected = (item1, item2) => {
   return Math.abs(item2.y - item1.y) <= VERTICAL_SPACING &&
          Math.abs(item2.x - item1.x) <= HORIZONTAL_SPACING;
 };
 
+// const sortedCanvasItems = computed(() => {
+//   const items = [...canvasItems.value];
+//   const processed = new Set();
+
+//   const processItem = (item) => {
+//     if (processed.has(item)) return null;
+//     processed.add(item);
+
+//     const newItem = { ...item, children: [], next: null, prev: null };
+
+//     if (item.type === 'Decision') {
+//       const rightBranch = findNearestRight(item, items);
+//       const bottomBranch = findNearestBottom(item, items);
+      
+//       if (rightBranch) {
+//         const rightResult = processItem(rightBranch);
+//         if (rightResult) {
+//           newItem.children.push(rightResult);
+//           rightResult.prev = newItem;
+//         }
+//       }
+//       if (bottomBranch) {
+//         const bottomResult = processItem(bottomBranch);
+//         if (bottomResult) {
+//           newItem.children.push(bottomResult);
+//           bottomResult.prev = newItem;
+//         }
+//       }
+//     } else {
+//       const nextItem = findNextItem(item, items);
+//       if (nextItem) {
+//         const nextResult = processItem(nextItem);
+//         if (nextResult) {
+//           newItem.next = nextResult;
+//           nextResult.prev = newItem;
+//         }
+//       }
+//     }
+
+//     return newItem;
+//   };
+
+//   // 시작 아이템 찾기: 들어오는 연결이 없는 아이템
+//   const startItem = items.find(item => 
+//     !items.some(other => 
+//       (other.type === 'Decision' && (findNearestRight(other, items) === item || findNearestBottom(other, items) === item)) ||
+//       (other.type !== 'Decision' && findNextItem(other, items) === item)
+//     )
+//   );
+
+//   return startItem ? processItem(startItem) : null;
+// });
 const sortedCanvasItems = computed(() => {
   const items = [...canvasItems.value];
-  const sorted = [];
   const processed = new Set();
 
   const processItem = (item) => {
-    if (processed.has(item)) return;
+    if (processed.has(item)) return null;
     processed.add(item);
-    sorted.push(item);
+
+    const newItem = { ...item, children: [], next: null };
 
     if (item.type === 'Decision') {
       const rightBranch = findNearestRight(item, items);
       const bottomBranch = findNearestBottom(item, items);
       
-      if (rightBranch && rightBranch.y >= item.y) {
-        processItem(rightBranch);
+      if (rightBranch) {
+        const rightResult = processItem(rightBranch);
+        if (rightResult) {
+          newItem.children.push(rightResult); //0 번 True
+        }
       }
       if (bottomBranch) {
-        processItem(bottomBranch);
+        const bottomResult = processItem(bottomBranch);
+        if (bottomResult) {
+          newItem.children.push(bottomResult);
+        }
       }
     } else {
       const nextItem = findNextItem(item, items);
       if (nextItem) {
-        processItem(nextItem);
+        newItem.next = processItem(nextItem);
       }
     }
+
+    return newItem;
   };
 
   // 시작 아이템 찾기: 들어오는 연결이 없는 아이템
-  const startItems = items.filter(item => 
+  const startItem = items.find(item => 
     !items.some(other => 
       (other.type === 'Decision' && (findNearestRight(other, items) === item || findNearestBottom(other, items) === item)) ||
       (other.type !== 'Decision' && findNextItem(other, items) === item)
     )
   );
 
-  startItems.forEach(processItem);
-  return sorted;
+  return startItem ? processItem(startItem) : null;
 });
 
-watch(sortedCanvasItems, (newValue) => {
-  console.log('Sorted Canvas Items:');
-  newValue.forEach((item, index) => {
-    console.log(`${index + 1}. Type: ${item.type}, Name: ${item.name}, Position: (${item.x}, ${item.y})`);
-  });
-});
-
-watch(sortedCanvasItems, (newValue) => {
-  console.log('Sorted Canvas Items:');
-  console.log(JSON.stringify(newValue, null, 2));
-});
+// watch(sortedCanvasItems, (newValue) => {
+//   console.log('Sorted Canvas Items:');
+//   const printItem = (item, depth = 0) => {
+//     if (!item) return;
+//     const indent = '  '.repeat(depth);
+//     console.log(`${indent}${item.type}: ${item.name} (${item.x}, ${item.y})`);
+//     item.children.forEach(child => printItem(child, depth + 1));
+//     if (item.next) {
+//       console.log(`${indent}Next:`);
+//       printItem(item.next, depth);
+//     }
+//   };
+//   printItem(newValue);
+// });
 
 const onDragStart = (event, component) => {
   event.dataTransfer.setData('text/plain', JSON.stringify(component))
@@ -314,7 +314,7 @@ const onDrop = (event) => {
     y
   })
   emit('update:canvasItems', canvasItems.value)
-  updateCanvasSize()
+  // updateCanvasSize()
 }
 
 const startItemDrag = (event, index) => {
@@ -334,7 +334,6 @@ const doDrag = (event) => {
     canvasItems.value[index].x = event.clientX - dragStartX.value
     canvasItems.value[index].y = event.clientY - dragStartY.value
     emit('update:canvasItems', canvasItems.value)
-    // updateCanvasSize()
   }
 }
 
@@ -361,7 +360,6 @@ const deleteItem = (index) => {
   canvasItems.value.splice(index, 1)
   selectedItemIndex.value = null
   emit('update:canvasItems', canvasItems.value)
-  // updateCanvasSize()
 }
 
 const updateCanvasSize = () => {
