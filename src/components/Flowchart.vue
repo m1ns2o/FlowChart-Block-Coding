@@ -93,9 +93,11 @@ const COMPONENT_WIDTH = 200
 const COMPONENT_HEIGHT = 60
 const VERTICAL_SPACING = 200
 const HORIZONTAL_SPACING = 500
+const Y_AXIS_EXPANSION_FACTOR = 4 // Increase this value to expand the canvas faster vertically
 
 const canvasRef = ref(null)
 const canvasSize = ref({ width: 1500, height: 2000 })
+const previousCanvasSize = ref({ width: 1500, height: 2000 })
 
 const getComponent = (type) => {
   const componentMap = {
@@ -118,11 +120,9 @@ const createConnection = (from, to, color) => {
 
   let path;
   if (to.y >= from.y) {
-    // 아래로 향하는 경우
     const midY = (startY + endY) / 2;
     path = `M${startX},${startY} C${startX},${midY} ${endX},${midY} ${endX},${endY}`;
   } else {
-    // 옆으로 향하는 경우 (이 경우는 발생하지 않아야 하지만, 안전을 위해 추가)
     const midX = (startX + endX) / 2;
     path = `M${startX},${startY} C${midX},${startY} ${midX},${endY} ${endX},${endY}`;
   }
@@ -140,15 +140,15 @@ const connections = computed(() => {
       const bottomBranch = findNearestBottom(item, items);
       
       if (rightBranch) {
-        lines.push(createConnection(item, rightBranch, '#00FF00')); // 녹색
+        lines.push(createConnection(item, rightBranch, '#00FF00'));
       }
       if (bottomBranch) {
-        lines.push(createConnection(item, bottomBranch, '#FF0000')); // 빨간색
+        lines.push(createConnection(item, bottomBranch, '#FF0000'));
       }
     } else {
       const nextItem = findNextItem(item, items);
       if (nextItem) {
-        lines.push(createConnection(item, nextItem, '#007bff')); // 파란색
+        lines.push(createConnection(item, nextItem, '#007bff'));
       }
     }
   });
@@ -175,68 +175,12 @@ const findNearestBottom = (item, items) => {
 const findNextItem = (item, items) => {
   return items.find(other => 
     other !== item && 
-    other.y > item.y && 
+    other.y > item.y &&
+    other.y - item.y < VERTICAL_SPACING && 
     Math.abs(other.x - item.x) < HORIZONTAL_SPACING / 6
   );
 };
 
-const isConnected = (item1, item2) => {
-  return Math.abs(item2.y - item1.y) <= VERTICAL_SPACING &&
-         Math.abs(item2.x - item1.x) <= HORIZONTAL_SPACING;
-};
-
-// const sortedCanvasItems = computed(() => {
-//   const items = [...canvasItems.value];
-//   const processed = new Set();
-
-//   const processItem = (item) => {
-//     if (processed.has(item)) return null;
-//     processed.add(item);
-
-//     const newItem = { ...item, children: [], next: null, prev: null };
-
-//     if (item.type === 'Decision') {
-//       const rightBranch = findNearestRight(item, items);
-//       const bottomBranch = findNearestBottom(item, items);
-      
-//       if (rightBranch) {
-//         const rightResult = processItem(rightBranch);
-//         if (rightResult) {
-//           newItem.children.push(rightResult);
-//           rightResult.prev = newItem;
-//         }
-//       }
-//       if (bottomBranch) {
-//         const bottomResult = processItem(bottomBranch);
-//         if (bottomResult) {
-//           newItem.children.push(bottomResult);
-//           bottomResult.prev = newItem;
-//         }
-//       }
-//     } else {
-//       const nextItem = findNextItem(item, items);
-//       if (nextItem) {
-//         const nextResult = processItem(nextItem);
-//         if (nextResult) {
-//           newItem.next = nextResult;
-//           nextResult.prev = newItem;
-//         }
-//       }
-//     }
-
-//     return newItem;
-//   };
-
-//   // 시작 아이템 찾기: 들어오는 연결이 없는 아이템
-//   const startItem = items.find(item => 
-//     !items.some(other => 
-//       (other.type === 'Decision' && (findNearestRight(other, items) === item || findNearestBottom(other, items) === item)) ||
-//       (other.type !== 'Decision' && findNextItem(other, items) === item)
-//     )
-//   );
-
-//   return startItem ? processItem(startItem) : null;
-// });
 const sortedCanvasItems = computed(() => {
   const items = [...canvasItems.value];
   const processed = new Set();
@@ -254,7 +198,7 @@ const sortedCanvasItems = computed(() => {
       if (rightBranch) {
         const rightResult = processItem(rightBranch);
         if (rightResult) {
-          newItem.children.push(rightResult); //0 번 True
+          newItem.children.push(rightResult);
         }
       }
       if (bottomBranch) {
@@ -273,7 +217,6 @@ const sortedCanvasItems = computed(() => {
     return newItem;
   };
 
-  // 시작 아이템 찾기: 들어오는 연결이 없는 아이템
   const startItem = items.find(item => 
     !items.some(other => 
       (other.type === 'Decision' && (findNearestRight(other, items) === item || findNearestBottom(other, items) === item)) ||
@@ -283,21 +226,6 @@ const sortedCanvasItems = computed(() => {
 
   return startItem ? processItem(startItem) : null;
 });
-
-// watch(sortedCanvasItems, (newValue) => {
-//   console.log('Sorted Canvas Items:');
-//   const printItem = (item, depth = 0) => {
-//     if (!item) return;
-//     const indent = '  '.repeat(depth);
-//     console.log(`${indent}${item.type}: ${item.name} (${item.x}, ${item.y})`);
-//     item.children.forEach(child => printItem(child, depth + 1));
-//     if (item.next) {
-//       console.log(`${indent}Next:`);
-//       printItem(item.next, depth);
-//     }
-//   };
-//   printItem(newValue);
-// });
 
 const onDragStart = (event, component) => {
   event.dataTransfer.setData('text/plain', JSON.stringify(component))
@@ -315,7 +243,7 @@ const onDrop = (event) => {
     y
   })
   emit('update:canvasItems', canvasItems.value)
-  // updateCanvasSize()
+  updateCanvasSize()
 }
 
 const startItemDrag = (event, index) => {
@@ -335,6 +263,7 @@ const doDrag = (event) => {
     canvasItems.value[index].x = event.clientX - dragStartX.value
     canvasItems.value[index].y = event.clientY - dragStartY.value
     emit('update:canvasItems', canvasItems.value)
+    updateCanvasSize() // This will now also trigger autoScroll
   }
 }
 
@@ -366,9 +295,36 @@ const deleteItem = (index) => {
 const updateCanvasSize = () => {
   if (canvasRef.value) {
     const rect = canvasRef.value.getBoundingClientRect()
+    const maxItemX = Math.max(...canvasItems.value.map(item => item.x + COMPONENT_WIDTH))
+    const maxItemY = Math.max(...canvasItems.value.map(item => item.y + COMPONENT_HEIGHT))
+    
+    const newWidth = Math.max(rect.width, maxItemX + 100, window.innerWidth)
+    const newHeight = Math.max(rect.height, maxItemY + (100 * Y_AXIS_EXPANSION_FACTOR), window.innerHeight)
+    
+    // Store the previous size before updating
+    previousCanvasSize.value = { ...canvasSize.value }
+    
     canvasSize.value = {
-      width: Math.max(rect.width, ...canvasItems.value.map(item => item.x + COMPONENT_WIDTH)),
-      height: Math.max(rect.height, ...canvasItems.value.map(item => item.y + COMPONENT_HEIGHT))
+      width: newWidth,
+      height: newHeight
+    }
+    
+    // Call the autoScroll function after updating the canvas size
+    autoScroll()
+  }
+}
+
+const autoScroll = () => {
+  if (canvasRef.value) {
+    const canvas = canvasRef.value
+    const widthDiff = canvasSize.value.width - previousCanvasSize.value.width
+    const heightDiff = canvasSize.value.height - previousCanvasSize.value.height
+
+    if (widthDiff > 0) {
+      canvas.scrollLeft += widthDiff
+    }
+    if (heightDiff > 0) {
+      canvas.scrollTop += heightDiff * Y_AXIS_EXPANSION_FACTOR
     }
   }
 }
@@ -399,9 +355,6 @@ onUnmounted(() => {
 .nav_style{
   background-color: #B1C9EF;
   width: 100%;
-  /* display: flex;
-  align-items: center;
-  justify-content: center; */
   height: 5%;
   margin: 0;
   padding: 0;
@@ -414,8 +367,6 @@ onUnmounted(() => {
   gap: 50px;
   width: 300px;
   align-items: center;
-  /* padding-top: 50px; */
-  /* border: 1px solid #ccc; */
   overflow-y: auto;
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
@@ -427,6 +378,7 @@ onUnmounted(() => {
 .canvas {
   width: 80%;
   height: 90%;
+  /* overflow: auto; */
   overflow-x: hidden;
   overflow-y: auto;
   border: 2px solid #333;
