@@ -12,6 +12,7 @@
         <component :is="getComponent(component.type)" :name="component.name" />
       </div>
     </div>
+    
     <div
       ref="canvasRef"
       class="canvas"
@@ -22,6 +23,7 @@
       @mouseup="stopDrag"
       @mouseleave="stopDrag"
     >
+      
       <svg class="connections" :width="canvasSize.width" :height="canvasSize.height">
         <path
           v-for="(connection, index) in connections"
@@ -72,6 +74,8 @@ import Loop from './Loop.vue'
 import Variable from './Variable.vue'
 import Input from './Input.vue'
 import Output from './Output.vue'
+import LoopStart from './LoopStart.vue'
+import LoopEnd from './LoopEnd.vue'
 
 const props = defineProps({
   flowchartComponents: {
@@ -97,6 +101,7 @@ const VERTICAL_SPACING = 200
 const HORIZONTAL_SPACING = 500
 const Y_AXIS_EXPANSION_FACTOR = 4
 
+
 const canvasRef = ref(null)
 const canvasSize = ref({ width: 1500, height: 2000 })
 const previousCanvasSize = ref({ width: 1500, height: 2000 })
@@ -110,6 +115,8 @@ const getComponent = (type) => {
     'Input': Input,
     'Output': Output,
     'Loop': Loop,
+    'LoopStart': LoopStart,
+    'LoopEnd': LoopEnd,
   }
   return componentMap[type] || Process
 }
@@ -162,7 +169,7 @@ const connections = computed(() => {
 });
 
 const findNearestRight = (item, items) => {
-  const itemWidth = item.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
+  const itemWidth = item.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH // 나중에 제거하기
   return items.find(other => 
     other !== item && 
     other.y >= item.y &&
@@ -176,7 +183,7 @@ const findNearestBottom = (item, items) => {
   return items.find(other => 
     other !== item && 
     other.y > item.y + itemHeight && 
-    Math.abs(other.x - item.x) < HORIZONTAL_SPACING / 2
+    Math.abs(other.x - item.x) < HORIZONTAL_SPACING
   );
 };
 
@@ -384,7 +391,7 @@ onUnmounted(() => {
 
 .canvas {
   width: 80%;
-  height: 90%;
+  height: 80%;
   overflow-x: hidden;
   overflow-y: auto;
   border: 2px solid #333;
