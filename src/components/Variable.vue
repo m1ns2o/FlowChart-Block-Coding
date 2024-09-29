@@ -5,7 +5,7 @@
       @blur="onBlur"
       @keyup.enter="onEnter"
       class="variable-input"
-      :placeholder="placeholder"
+      placeholder="ex) x = 4"
     />
   </div>
 </template>
@@ -18,10 +18,6 @@ const props = defineProps({
     type: String,
     default: '변수'
   },
-  placeholder: {
-    type: String,
-    default: 'ex) x = 4'
-  }
 })
 
 const emit = defineEmits(['update:name', 'blur', 'enter'])
