@@ -7,7 +7,7 @@
           @blur="onBlur"
           @keyup.enter="onEnter"
           class="process-loop"
-          :placeholder="isDefaultValue ? 'ex) x' : ''"
+          placeholder="ex) x'"
         />
       </div>
       <div class="loop-content">
@@ -75,22 +75,23 @@
     z-index: 1;
     box-sizing: border-box;
     border: 2px solid #000;
+    background: none;
   }
   
   .loop-count {
-    height: 40px;
+    height: 100px;
     border-bottom: 2px solid #000;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #fff;
+    /* background-color: #fff; */
   }
   
   .loop-content {
     flex-grow: 1;
-    background-color: #fff;
+    /* background-color: #fff; */
   }
-  
+
   .process-loop {
     width: 90%;
     height: 30px;

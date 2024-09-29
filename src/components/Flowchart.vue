@@ -91,9 +91,11 @@ const componentList = ref([])
 
 const COMPONENT_WIDTH = 200
 const COMPONENT_HEIGHT = 60
+const LOOP_WIDTH = 250
+const LOOP_HEIGHT = 300
 const VERTICAL_SPACING = 200
 const HORIZONTAL_SPACING = 500
-const Y_AXIS_EXPANSION_FACTOR = 4 // Increase this value to expand the canvas faster vertically
+const Y_AXIS_EXPANSION_FACTOR = 4
 
 const canvasRef = ref(null)
 const canvasSize = ref({ width: 1500, height: 2000 })
@@ -107,15 +109,19 @@ const getComponent = (type) => {
     'Variable': Variable,
     'Input': Input,
     'Output': Output,
-    'Loop':Loop,
+    'Loop': Loop,
   }
   return componentMap[type] || Process
 }
 
 const createConnection = (from, to, color) => {
-  const startX = from.x + COMPONENT_WIDTH / 2;
-  const startY = from.y + COMPONENT_HEIGHT;
-  const endX = to.x + COMPONENT_WIDTH / 2;
+  const fromWidth = from.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
+  const fromHeight = from.type === 'Loop' ? LOOP_HEIGHT : COMPONENT_HEIGHT
+  const toWidth = to.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
+  
+  const startX = from.x + fromWidth / 2;
+  const startY = from.y + fromHeight;
+  const endX = to.x + toWidth / 2;
   const endY = to.y;
 
   let path;
@@ -156,27 +162,30 @@ const connections = computed(() => {
 });
 
 const findNearestRight = (item, items) => {
+  const itemWidth = item.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
   return items.find(other => 
     other !== item && 
     other.y >= item.y &&
     Math.abs(other.y - item.y) < VERTICAL_SPACING && 
-    other.x > item.x
+    other.x > item.x + itemWidth
   );
 };
 
 const findNearestBottom = (item, items) => {
+  const itemHeight = item.type === 'Loop' ? LOOP_HEIGHT : COMPONENT_HEIGHT
   return items.find(other => 
     other !== item && 
-    other.y > item.y && 
+    other.y > item.y + itemHeight && 
     Math.abs(other.x - item.x) < HORIZONTAL_SPACING / 2
   );
 };
 
 const findNextItem = (item, items) => {
+  const itemHeight = item.type === 'Loop' ? LOOP_HEIGHT : COMPONENT_HEIGHT
   return items.find(other => 
     other !== item && 
-    other.y > item.y &&
-    other.y - item.y < VERTICAL_SPACING && 
+    other.y > item.y + itemHeight &&
+    other.y - (item.y + itemHeight) < VERTICAL_SPACING && 
     Math.abs(other.x - item.x) < HORIZONTAL_SPACING / 6
   );
 };
@@ -263,7 +272,7 @@ const doDrag = (event) => {
     canvasItems.value[index].x = event.clientX - dragStartX.value
     canvasItems.value[index].y = event.clientY - dragStartY.value
     emit('update:canvasItems', canvasItems.value)
-    updateCanvasSize() // This will now also trigger autoScroll
+    updateCanvasSize()
   }
 }
 
@@ -295,13 +304,12 @@ const deleteItem = (index) => {
 const updateCanvasSize = () => {
   if (canvasRef.value) {
     const rect = canvasRef.value.getBoundingClientRect()
-    const maxItemX = Math.max(...canvasItems.value.map(item => item.x + COMPONENT_WIDTH))
-    const maxItemY = Math.max(...canvasItems.value.map(item => item.y + COMPONENT_HEIGHT))
+    const maxItemX = Math.max(...canvasItems.value.map(item => item.x + (item.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH)))
+    const maxItemY = Math.max(...canvasItems.value.map(item => item.y + (item.type === 'Loop' ? LOOP_HEIGHT : COMPONENT_HEIGHT)))
     
     const newWidth = Math.max(rect.width, maxItemX + 100, window.innerWidth)
     const newHeight = Math.max(rect.height, maxItemY + (100 * Y_AXIS_EXPANSION_FACTOR), window.innerHeight)
     
-    // Store the previous size before updating
     previousCanvasSize.value = { ...canvasSize.value }
     
     canvasSize.value = {
@@ -309,7 +317,6 @@ const updateCanvasSize = () => {
       height: newHeight
     }
     
-    // Call the autoScroll function after updating the canvas size
     autoScroll()
   }
 }
@@ -378,7 +385,6 @@ onUnmounted(() => {
 .canvas {
   width: 80%;
   height: 90%;
-  /* overflow: auto; */
   overflow-x: hidden;
   overflow-y: auto;
   border: 2px solid #333;
