@@ -26,6 +26,7 @@ const flowchartComponents = ref([
   { name: '변수', type: 'Variable' },
   { name: '입력', type: 'Input' },
   { name: '출력', type: 'Output' },
+  { name: '반복', type: 'Loop' },
 ])
 
 const canvasItems = ref([])

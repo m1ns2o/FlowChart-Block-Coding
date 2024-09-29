@@ -68,7 +68,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import Start from './Start.vue'
 import Process from './Process.vue'
 import Decision from './Decision.vue'
-// import End from './End.vue'
+import Loop from './Loop.vue'
 import Variable from './Variable.vue'
 import Input from './Input.vue'
 import Output from './Output.vue'
@@ -106,7 +106,8 @@ const getComponent = (type) => {
     'Decision': Decision,
     'Variable': Variable,
     'Input': Input,
-    'Output': Output
+    'Output': Output,
+    'Loop':Loop,
   }
   return componentMap[type] || Process
 }

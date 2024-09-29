@@ -1,46 +1,103 @@
 <template>
-    <div class="flowchart-component decision">
-      <span class="decision-text">{{ name }}</span>
-    </div>
-  </template>
-  
-  <script setup>
-  defineProps({
-    name: {
-      type: String,
-      default: '결정'
-    }
-  })
-  </script>
-  
-  <style scoped>
-  .flowchart-component {
-    width: 200px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: move;
-    background-color: #fff;
-    /* border: 1px solid #999; */
-    user-select: none;
-    z-index: 1;
-    /* box-shadow: 0 2px 5px rgba(0,0,0,0.1); */
-    
+  <div class="flowchart-component decision">
+    <input
+      v-model="inputValue"
+      @focus="onFocus"
+      @blur="onBlur"
+      @keyup.enter="onEnter"
+      class="decision-input"
+      placeholder="ex) x > 4"
+    />
+  </div>
+</template>
+
+<script setup>
+import { ref, watch } from 'vue'
+
+const props = defineProps({
+  name: {
+    type: String,
+    default: '결정'
+  },
+})
+
+const emit = defineEmits(['update:name', 'blur', 'enter'])
+
+const inputValue = ref(props.name)
+const isDefaultValue = ref(props.name === '결정')
+
+watch(() => props.name, (newValue) => {
+  inputValue.value = newValue
+  isDefaultValue.value = newValue === '결정'
+})
+
+watch(inputValue, (newValue) => {
+  emit('update:name', newValue)
+  isDefaultValue.value = newValue === '결정'
+})
+
+const onFocus = () => {
+  if (isDefaultValue.value) {
+    inputValue.value = ''
   }
-  .decision {
-    background-color: #e9ecef;
-    /* transform: rotate(45deg); */
-    /* background: #f1c40f; */
-    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-    /* display: flex; */
-    align-items: center;
-    justify-content: center;
+}
+
+const onBlur = () => {
+  if (inputValue.value.trim() === '') {
+    inputValue.value = '결정'
+    isDefaultValue.value = true
   }
-  .decision-text {
-    /* transform: rotate(-45deg); */
-    display: inline-block;
-    width: 100%;
-    text-align: center;
+  emit('blur', inputValue.value)
+}
+
+const onEnter = () => {
+  if (inputValue.value.trim() === '') {
+    inputValue.value = '결정'
+    isDefaultValue.value = true
   }
-  </style>
+  emit('enter', inputValue.value)
+}
+</script>
+
+<style scoped>
+.flowchart-component {
+  width: 200px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: move;
+  background-color: #fff;
+  user-select: none;
+  z-index: 1;
+}
+
+.decision {
+  background-color: #e9ecef;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decision-input {
+  width: 70%;
+  height: 40px;
+  background: transparent;
+  border: none;
+  text-align: center;
+  font-size: 14px;
+  color: #000;
+  position: relative;
+  z-index: 2;
+}
+
+.decision-input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.decision-input:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+</style>

@@ -2,6 +2,7 @@
   <div class="flowchart-component variable">
     <input
       v-model="inputValue"
+      @focus="onFocus"
       @blur="onBlur"
       @keyup.enter="onEnter"
       class="variable-input"
@@ -23,20 +24,38 @@ const props = defineProps({
 const emit = defineEmits(['update:name', 'blur', 'enter'])
 
 const inputValue = ref(props.name)
+const isDefaultValue = ref(props.name === '변수')
 
 watch(() => props.name, (newValue) => {
   inputValue.value = newValue
+  isDefaultValue.value = newValue === '변수'
 })
 
 watch(inputValue, (newValue) => {
   emit('update:name', newValue)
+  isDefaultValue.value = false
 })
 
+const onFocus = () => {
+  if (isDefaultValue.value) {
+    inputValue.value = ''
+    isDefaultValue.value = false
+  }
+}
+
 const onBlur = () => {
+  if (inputValue.value.trim() === '') {
+    inputValue.value = '변수'
+    isDefaultValue.value = true
+  }
   emit('blur', inputValue.value)
 }
 
 const onEnter = () => {
+  if (inputValue.value.trim() === '') {
+    inputValue.value = '변수'
+    isDefaultValue.value = true
+  }
   emit('enter', inputValue.value)
 }
 </script>
