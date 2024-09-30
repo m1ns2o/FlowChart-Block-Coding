@@ -13,7 +13,9 @@
       </div>
     </div>
     
-    <div
+    <div class="page">
+      <button>RUN</button>
+      <div
       ref="canvasRef"
       class="canvas"
       @dragover.prevent
@@ -62,6 +64,7 @@
         />
       </div>
     </div>
+    </div>
   </div>
 </template>
 
@@ -100,7 +103,6 @@ const LOOP_HEIGHT = 300
 const VERTICAL_SPACING = 200
 const HORIZONTAL_SPACING = 500
 const Y_AXIS_EXPANSION_FACTOR = 4
-
 
 const canvasRef = ref(null)
 const canvasSize = ref({ width: 1500, height: 2000 })
@@ -169,7 +171,7 @@ const connections = computed(() => {
 });
 
 const findNearestRight = (item, items) => {
-  const itemWidth = item.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH // 나중에 제거하기
+  const itemWidth = item.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
   return items.find(other => 
     other !== item && 
     other.y >= item.y &&
@@ -260,6 +262,7 @@ const onDrop = (event) => {
   })
   emit('update:canvasItems', canvasItems.value)
   updateCanvasSize()
+  saveToLocalStorage()
 }
 
 const startItemDrag = (event, index) => {
@@ -285,6 +288,7 @@ const doDrag = (event) => {
 
 const stopDrag = () => {
   isDragging.value = false
+  saveToLocalStorage()
 }
 
 const throttle = (func, limit) => {
@@ -306,6 +310,7 @@ const deleteItem = (index) => {
   canvasItems.value.splice(index, 1)
   selectedItemIndex.value = null
   emit('update:canvasItems', canvasItems.value)
+  saveToLocalStorage()
 }
 
 const updateCanvasSize = () => {
@@ -346,9 +351,27 @@ const autoScroll = () => {
 const updateItemName = (index, newName) => {
   canvasItems.value[index].name = newName
   emit('update:canvasItems', canvasItems.value)
+  saveToLocalStorage()
 }
 
+const saveToLocalStorage = () => {
+  localStorage.setItem('canvasItems', JSON.stringify(canvasItems.value))
+  localStorage.setItem('sortedCanvasItems', JSON.stringify(sortedCanvasItems.value))
+}
+
+const loadFromLocalStorage = () => {
+  const savedCanvasItems = localStorage.getItem('canvasItems')
+  if (savedCanvasItems) {
+    canvasItems.value = JSON.parse(savedCanvasItems)
+  }
+}
+
+watch(canvasItems, () => {
+  saveToLocalStorage()
+}, { deep: true })
+
 onMounted(() => {
+  loadFromLocalStorage()
   updateCanvasSize()
   window.addEventListener('resize', updateCanvasSize)
 })
@@ -391,12 +414,12 @@ onUnmounted(() => {
 
 .canvas {
   width: 80%;
-  height: 80%;
+  height: 85%;
   overflow-x: hidden;
   overflow-y: auto;
   border: 2px solid #333;
   position: relative;
-  margin: auto;
+  /* margin: auto; */
 }
 
 .connections {
@@ -408,5 +431,22 @@ onUnmounted(() => {
 
 .selected {
   outline: 2px solid #007bff;
+}
+
+.page{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.page > button{
+  margin-top: 20px;
+  width: 200px;
+  height: 60px;
+  background-color: skyblue;
 }
 </style>
