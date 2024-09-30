@@ -33,7 +33,7 @@ const flowchartComponents = ref([
 
 const canvasItems = ref([])
 
-const connections:number = computed(() => {
+const connections = computed(() => {
   return canvasItems.value.length > 1 ? canvasItems.value.length - 1 : 0
 })
 </script>

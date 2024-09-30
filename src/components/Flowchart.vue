@@ -14,57 +14,66 @@
     </div>
     
     <div class="page">
-      <button
-      @click="runCompile(sortedCanvasItems)">RUN</button>
+      <button @click="runCompile(sortedCanvasItems)">RUN</button>
       <div
-      ref="canvasRef"
-      class="canvas"
-      @dragover.prevent
-      @drop="onDrop"
-      @mousedown="startCanvasDrag"
-      @mousemove="throttledDoDrag"
-      @mouseup="stopDrag"
-      @mouseleave="stopDrag"
-    >
-      
-      <svg class="connections" :width="canvasSize.width" :height="canvasSize.height">
-        <path
-          v-for="(connection, index) in connections"
-          :key="index"
-          :d="connection.path"
-          fill="none"
-          :stroke="connection.color"
-          stroke-width="2"
-          marker-end="url(#arrowhead)"
-        />
-        <defs>
-          <marker
-            id="arrowhead"
-            markerWidth="10"
-            markerHeight="7"
-            refX="9"
-            refY="3.5"
-            orient="auto"
-          >
-            <polygon points="0 0, 10 3.5, 0 7" fill="#007bff" />
-          </marker>
-        </defs>
-      </svg>
-      <div
-        v-for="(item, index) in canvasItems"
-        :key="index"
-        :style="{ position: 'absolute', left: `${item.x}px`, top: `${item.y}px` }"
-        @mousedown.stop="startItemDrag($event, index)"
-        @contextmenu.prevent="deleteItem(index)"
-        :class="{ selected: selectedItemIndex === index }"
+        ref="canvasRef"
+        class="canvas"
+        @dragover.prevent
+        @drop="onDrop"
+        @mousedown="startCanvasDrag"
+        @mousemove="throttledDoDrag"
+        @mouseup="stopDrag"
+        @mouseleave="stopDrag"
       >
-        <component 
-          :is="getComponent(item.type)" 
-          v-model:name="item.name"
-          @update:name="updateItemName(index, $event)"
-        />
+      <svg class="connections" :width="canvasSize.width" :height="canvasSize.height">
+  <defs>
+    <marker
+      id="arrowhead"
+      markerWidth="10"
+      markerHeight="7"
+      refX="9"
+      refY="3.5"
+      orient="auto"
+    >
+      <polygon points="0 0, 10 3.5, 0 7" fill="#007bff" />
+    </marker>
+  </defs>
+  <path
+    v-for="(connection, index) in connections"
+    :key="index"
+    :d="connection.path"
+    fill="none"
+    :stroke="connection.color"
+    stroke-width="2"
+    marker-end="url(#arrowhead)"
+  />
+  <g v-for="(connection, index) in loopVisualConnections" :key="`loop-${index}`">
+    <path
+      :d="connection.path"
+      fill="none"
+      :stroke="connection.color"
+      stroke-width="2"
+      :stroke-dasharray="connection.style === 'dashed' ? '5,5' : ''"
+    />
+    <circle :cx="connection.startX" :cy="connection.startY" r="4" :fill="connection.color" />
+    <circle :cx="connection.endX" :cy="connection.endY" r="4" :fill="connection.color" />
+  </g>
+</svg>
+        <div
+          v-for="(item, index) in canvasItems"
+          :key="index"
+          :style="{ position: 'absolute', left: `${item.x}px`, top: `${item.y}px` }"
+          @mousedown.stop="startItemDrag($event, index)"
+          @contextmenu.prevent="deleteItem(index)"
+          :class="{ selected: selectedItemIndex === index }"
+        >
+          <component 
+            :is="getComponent(item.type)" 
+            v-model:name="item.name"
+            @update:name="updateItemName(index, $event)"
+          />
+        </div>
       </div>
-    </div>
     </div>
   </div>
 </template>
@@ -382,7 +391,7 @@ const saveToLocalStorage = () => {
   try {
     localStorage.setItem('canvasItems', JSON.stringify(canvasItems.value))
     localStorage.setItem('sortedCanvasItems', JSON.stringify(sortedCanvasItems.value))
-    console.log(sortedCanvasItems.value)
+    // console.log(sortedCanvasItems.value)
   } catch (error) {
     console.error('Error saving to localStorage:', error)
   }
@@ -398,6 +407,60 @@ const loadFromLocalStorage = () => {
     console.error('Error loading from localStorage:', error)
   }
 }
+
+interface Connection {
+  path: string;
+  color: string;
+  style: string;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+}
+
+const createLoopVisualConnection = (from: CanvasItem, to: CanvasItem, color: string, style: string = 'dashed'): Connection => {
+  const startX = from.x;
+  const startY = from.y + COMPONENT_HEIGHT / 2;
+  const endX = to.x;
+  const endY = to.y + COMPONENT_HEIGHT / 2;
+
+  const controlX1 = Math.min(startX, endX) - 100;
+  const controlX2 = controlX1;
+  const controlY1 = startY;
+  const controlY2 = endY;
+
+  const path = `M${startX},${startY} C${controlX1},${controlY1} ${controlX2},${controlY2} ${endX},${endY}`;
+
+  return { path, color, style, startX, startY, endX, endY };
+};
+// loopVisualConnections computed 속성은 그대로 유지
+const loopVisualConnections = computed((): Connection[] => {
+  const lines: Connection[] = [];
+  const items = canvasItems.value;
+
+  items.forEach(item => {
+    if (item.type === 'LoopStart') {
+      const loopEnd = findNearestLoopEnd(item, items);
+      if (loopEnd) {
+        lines.push(createLoopVisualConnection(item, loopEnd, '#FFA500', 'dashed'));
+      }
+    }
+  });
+
+  return lines;
+});
+
+const findNearestLoopEnd = (item: CanvasItem, items: CanvasItem[]): CanvasItem | undefined => {
+  return items.find(other => 
+    other !== item && 
+    other.type === 'LoopEnd' &&
+    other.y > item.y &&
+    Math.abs(other.x - item.x) < HORIZONTAL_SPACING
+  );
+};
+
+
+// 기존의 createConnection 함수는 그대로 유지
 
 // SortedCanvasItem 인터페이스 정의 (이전과 동일)
 // interface SortedCanvasItem extends CanvasItem {
