@@ -14,7 +14,7 @@
   </div> -->
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
 import Flowchart from './components/Flowchart.vue'
 
@@ -26,14 +26,14 @@ const flowchartComponents = ref([
   { name: '변수', type: 'Variable' },
   { name: '입력', type: 'Input' },
   { name: '출력', type: 'Output' },
-  { name: '반복', type: 'Loop' },
+  // { name: '반복', type: 'Loop' },
   { name: '반복 시작', type: 'LoopStart' },
   { name: '반복끝', type: 'LoopEnd' },
 ])
 
 const canvasItems = ref([])
 
-const connections = computed(() => {
+const connections:number = computed(() => {
   return canvasItems.value.length > 1 ? canvasItems.value.length - 1 : 0
 })
 </script>

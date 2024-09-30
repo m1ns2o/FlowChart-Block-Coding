@@ -14,7 +14,8 @@
     </div>
     
     <div class="page">
-      <button>RUN</button>
+      <button
+      @click="runCompile(sortedCanvasItems)">RUN</button>
       <div
       ref="canvasRef"
       class="canvas"
@@ -68,8 +69,8 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+<script setup lang="ts">
+import { ref, computed, watch, onMounted, onUnmounted, defineProps, defineEmits } from 'vue'
 import Start from './Start.vue'
 import Process from './Process.vue'
 import Decision from './Decision.vue'
@@ -80,21 +81,37 @@ import Output from './Output.vue'
 import LoopStart from './LoopStart.vue'
 import LoopEnd from './LoopEnd.vue'
 
-const props = defineProps({
-  flowchartComponents: {
-    type: Array,
-    required: true
-  }
-})
+interface FlowchartComponent {
+  type: string;
+  name: string;
+}
+
+interface CanvasItem extends FlowchartComponent {
+  x: number;
+  y: number;
+}
+
+interface Connection {
+  path: string;
+  color: string;
+}
+
+interface CanvasSize {
+  width: number;
+  height: number;
+}
+
+const props = defineProps<{
+  flowchartComponents: FlowchartComponent[]
+}>()
 
 const emit = defineEmits(['update:canvasItems'])
 
-const canvasItems = ref([])
-const selectedItemIndex = ref(null)
+const canvasItems = ref<CanvasItem[]>([])
+const selectedItemIndex = ref<number | null>(null)
 const isDragging = ref(false)
 const dragStartX = ref(0)
 const dragStartY = ref(0)
-const componentList = ref([])
 
 const COMPONENT_WIDTH = 200
 const COMPONENT_HEIGHT = 60
@@ -104,12 +121,12 @@ const VERTICAL_SPACING = 200
 const HORIZONTAL_SPACING = 500
 const Y_AXIS_EXPANSION_FACTOR = 4
 
-const canvasRef = ref(null)
-const canvasSize = ref({ width: 1500, height: 2000 })
-const previousCanvasSize = ref({ width: 1500, height: 2000 })
+const canvasRef = ref<HTMLDivElement | null>(null)
+const canvasSize = ref<CanvasSize>({ width: 1500, height: 2000 })
+const previousCanvasSize = ref<CanvasSize>({ width: 1500, height: 2000 })
 
-const getComponent = (type) => {
-  const componentMap = {
+const getComponent = (type: string) => {
+  const componentMap: { [key: string]: any } = {
     'Start': Start,
     'Process': Process,
     'Decision': Decision,
@@ -123,7 +140,7 @@ const getComponent = (type) => {
   return componentMap[type] || Process
 }
 
-const createConnection = (from, to, color) => {
+const createConnection = (from: CanvasItem, to: CanvasItem, color: string): Connection => {
   const fromWidth = from.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
   const fromHeight = from.type === 'Loop' ? LOOP_HEIGHT : COMPONENT_HEIGHT
   const toWidth = to.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
@@ -133,7 +150,7 @@ const createConnection = (from, to, color) => {
   const endX = to.x + toWidth / 2;
   const endY = to.y;
 
-  let path;
+  let path: string;
   if (to.y >= from.y) {
     const midY = (startY + endY) / 2;
     path = `M${startX},${startY} C${startX},${midY} ${endX},${midY} ${endX},${endY}`;
@@ -145,8 +162,8 @@ const createConnection = (from, to, color) => {
   return { path, color };
 };
 
-const connections = computed(() => {
-  const lines = [];
+const connections = computed((): Connection[] => {
+  const lines: Connection[] = [];
   const items = canvasItems.value;
 
   items.forEach(item => {
@@ -170,7 +187,7 @@ const connections = computed(() => {
   return lines;
 });
 
-const findNearestRight = (item, items) => {
+const findNearestRight = (item: CanvasItem, items: CanvasItem[]): CanvasItem | undefined => {
   const itemWidth = item.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
   return items.find(other => 
     other !== item && 
@@ -180,7 +197,7 @@ const findNearestRight = (item, items) => {
   );
 };
 
-const findNearestBottom = (item, items) => {
+const findNearestBottom = (item: CanvasItem, items: CanvasItem[]): CanvasItem | undefined => {
   const itemHeight = item.type === 'Loop' ? LOOP_HEIGHT : COMPONENT_HEIGHT
   return items.find(other => 
     other !== item && 
@@ -189,7 +206,7 @@ const findNearestBottom = (item, items) => {
   );
 };
 
-const findNextItem = (item, items) => {
+const findNextItem = (item: CanvasItem, items: CanvasItem[]): CanvasItem | undefined => {
   const itemHeight = item.type === 'Loop' ? LOOP_HEIGHT : COMPONENT_HEIGHT
   return items.find(other => 
     other !== item && 
@@ -199,15 +216,20 @@ const findNextItem = (item, items) => {
   );
 };
 
-const sortedCanvasItems = computed(() => {
-  const items = [...canvasItems.value];
-  const processed = new Set();
+interface SortedCanvasItem extends CanvasItem {
+  children: SortedCanvasItem[];
+  next: SortedCanvasItem | null;
+}
 
-  const processItem = (item) => {
+const sortedCanvasItems = computed((): SortedCanvasItem | null => {
+  const items = [...canvasItems.value];
+  const processed = new Set<CanvasItem>();
+
+  const processItem = (item: CanvasItem): SortedCanvasItem | null => {
     if (processed.has(item)) return null;
     processed.add(item);
 
-    const newItem = { ...item, children: [], next: null };
+    const newItem: SortedCanvasItem = { ...item, children: [], next: null };
 
     if (item.type === 'Decision') {
       const rightBranch = findNearestRight(item, items);
@@ -245,13 +267,15 @@ const sortedCanvasItems = computed(() => {
   return startItem ? processItem(startItem) : null;
 });
 
-const onDragStart = (event, component) => {
-  event.dataTransfer.setData('text/plain', JSON.stringify(component))
+const onDragStart = (event: DragEvent, component: FlowchartComponent) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.setData('text/plain', JSON.stringify(component))
+  }
 }
 
-const onDrop = (event) => {
-  const componentData = JSON.parse(event.dataTransfer.getData('text/plain'))
-  const rect = event.target.getBoundingClientRect()
+const onDrop = (event: DragEvent) => {
+  const componentData = JSON.parse(event.dataTransfer?.getData('text/plain') || '{}')
+  const rect = (event.target as HTMLElement).getBoundingClientRect()
   const x = event.clientX - rect.left
   const y = event.clientY - rect.top
   
@@ -265,18 +289,18 @@ const onDrop = (event) => {
   saveToLocalStorage()
 }
 
-const startItemDrag = (event, index) => {
+const startItemDrag = (event: MouseEvent, index: number) => {
   selectedItemIndex.value = index
   isDragging.value = true
   dragStartX.value = event.clientX - canvasItems.value[index].x
   dragStartY.value = event.clientY - canvasItems.value[index].y
 }
 
-const startCanvasDrag = (event) => {
+const startCanvasDrag = () => {
   selectedItemIndex.value = null
 }
 
-const doDrag = (event) => {
+const doDrag = (event: MouseEvent) => {
   if (isDragging.value && selectedItemIndex.value !== null) {
     const index = selectedItemIndex.value
     canvasItems.value[index].x = event.clientX - dragStartX.value
@@ -291,9 +315,9 @@ const stopDrag = () => {
   saveToLocalStorage()
 }
 
-const throttle = (func, limit) => {
-  let inThrottle
-  return function() {
+const throttle = (func: Function, limit: number) => {
+  let inThrottle: boolean
+  return function(this: any) {
     const args = arguments
     const context = this
     if (!inThrottle) {
@@ -306,7 +330,7 @@ const throttle = (func, limit) => {
 
 const throttledDoDrag = throttle(doDrag, 16)
 
-const deleteItem = (index) => {
+const deleteItem = (index: number) => {
   canvasItems.value.splice(index, 1)
   selectedItemIndex.value = null
   emit('update:canvasItems', canvasItems.value)
@@ -348,21 +372,108 @@ const autoScroll = () => {
   }
 }
 
-const updateItemName = (index, newName) => {
+const updateItemName = (index: number, newName: string) => {
   canvasItems.value[index].name = newName
   emit('update:canvasItems', canvasItems.value)
   saveToLocalStorage()
 }
 
 const saveToLocalStorage = () => {
-  localStorage.setItem('canvasItems', JSON.stringify(canvasItems.value))
-  localStorage.setItem('sortedCanvasItems', JSON.stringify(sortedCanvasItems.value))
+  try {
+    localStorage.setItem('canvasItems', JSON.stringify(canvasItems.value))
+    localStorage.setItem('sortedCanvasItems', JSON.stringify(sortedCanvasItems.value))
+    console.log(sortedCanvasItems.value)
+  } catch (error) {
+    console.error('Error saving to localStorage:', error)
+  }
 }
 
 const loadFromLocalStorage = () => {
-  const savedCanvasItems = localStorage.getItem('canvasItems')
-  if (savedCanvasItems) {
-    canvasItems.value = JSON.parse(savedCanvasItems)
+  try {
+    const savedCanvasItems = localStorage.getItem('canvasItems')
+    if (savedCanvasItems) {
+      canvasItems.value = JSON.parse(savedCanvasItems)
+    }
+  } catch (error) {
+    console.error('Error loading from localStorage:', error)
+  }
+}
+
+// SortedCanvasItem 인터페이스 정의 (이전과 동일)
+// interface SortedCanvasItem extends CanvasItem {
+//   children: SortedCanvasItem[];
+//   next: SortedCanvasItem | null;
+// }
+
+let code = ''
+
+const compile = (item: SortedCanvasItem): void => {
+  switch(item.type){
+    case 'Variable':
+      code += `let ${item.name};\n`;
+      break;
+    case 'Process':
+      code += `${item.name};\n`;
+      break;
+    case 'Input':
+      code += `const temp = prompt("입력", "");
+      ${item.name} = isNaN(Number(temp)) ? temp : Number(temp);\n`;
+      break;
+    case 'Output':
+      code += `console.log(${item.name});\n`;
+      break;
+    case 'LoopStart':
+      compileLoopStart(item.name);
+      break;
+    case 'LoopEnd':
+      compileLoopEnd();
+      break;
+    case 'Decision':
+      compileDecision(item);
+      break;
+    default:
+      // console.warn(`Unsupported type: ${item.type}`);
+      break;
+  }
+
+  // 다음 아이템이 있으면 재귀적으로 compile 호출
+  if (item.next) {
+    compile(item.next);
+  }
+}
+
+const compileLoopStart = (condition: string): void => {
+  if (isNaN(Number(condition))) {
+    code += `while(${condition}) {\n`;
+  } else {
+    code += `for(let i = 0; i < ${condition}; i++) {\n`;
+  }
+}
+
+const compileLoopEnd = (): void => {
+  code += "}\n";
+}
+
+const compileDecision = (item: SortedCanvasItem): void => {
+  code += `if (${item.name}) {\n`;
+  if (item.children[0]) {
+    compile(item.children[0]);
+  }
+  code += "} else {\n";
+  if (item.children[1]) {
+    compile(item.children[1]);
+  }
+  code += "}\n";
+}
+
+// compile 함수 사용 예시
+const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
+  code = ''; // 코드 초기화
+  if (sortedCanvasItems) {
+    compile(sortedCanvasItems);
+    console.log(code); // 생성된 코드 출력
+  } else {
+    console.warn('No items to compile');
   }
 }
 
