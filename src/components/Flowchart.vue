@@ -500,7 +500,7 @@ const compile = (item: SortedCanvasItem): void => {
 
 const compileInput = (varName: string): void => {
   code += `await new Promise(resolve => {
-    terminalRef.value?.scan(temp => {
+    terminal.scan(temp => {
       ${varName} = isNaN(Number(temp)) ? temp : Number(temp);
       resolve();
     });
@@ -508,7 +508,7 @@ const compileInput = (varName: string): void => {
 }
 
 const compileOutput = (varName: string): void => {
-  code += `terminalRef.value?.print(String(${varName}));\n`;
+  code += `terminal.print(String(${varName}));\n`;
 }
 
 const compileLoopStart = (condition: string): void => {
@@ -535,6 +535,25 @@ const compileDecision = (item: SortedCanvasItem): void => {
   code += "}\n";
 }
 
+// const runCode = async () => {
+//   if (!terminalRef.value) return;
+//   terminalRef.value.clearTerminal();
+//   terminalRef.value.print("프로그램 실행 시작...");
+
+//   try {
+//     const execCode = `
+//       (async () => {
+//         ${code}
+//       })()
+//     `;
+//     await eval(execCode);
+//   } catch (error) {
+//     terminalRef.value.print(`오류 발생: ${error}`);
+//   } finally {
+//     terminalRef.value.print("프로그램 실행 종료.");
+//   }
+// }
+
 // compile 함수 사용 예시
 const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
   code = ''; // 코드 초기화
@@ -546,29 +565,25 @@ const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
     nextTick(() => { // DOM 업데이트 후 runCode 실행
       // terminal_state.value = true;
       // console.log(terminal_state.value)
-      runCode();
+      runCode(terminalRef.value);
     });
   } else {
     console.warn('No items to compile');
   }
 }
 
-const runCode = async () => {
-  if (!terminalRef.value) return;
-  terminalRef.value.clearTerminal();
-  terminalRef.value.print("프로그램 실행 시작...");
+const runCode = async (terminal) => {
+  if (!terminal) return;
+  terminal.clearTerminal();
+  terminal.print("프로그램 실행 시작...");
 
   try {
-    const execCode = `
-      (async () => {
-        ${code}
-      })()
-    `;
-    await eval(execCode);
+    const asyncFunction = new Function('terminal', 'return (async () => { ' + code + ' })()');
+    await asyncFunction(terminal);
   } catch (error) {
-    terminalRef.value.print(`오류 발생: ${error}`);
+    terminal.print(`오류 발생: ${error}`);
   } finally {
-    terminalRef.value.print("프로그램 실행 종료.");
+    terminal.print("프로그램 실행 종료.");
   }
 }
 
