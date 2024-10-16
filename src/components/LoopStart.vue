@@ -6,7 +6,7 @@
         @blur="onBlur"
         @keyup.enter="onEnter"
         class="process-input"
-        placeholder="ex) 4"
+        placeholder="ex) 10 or x > 3"
       />
     </div>
   </template>

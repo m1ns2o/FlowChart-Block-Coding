@@ -6,7 +6,7 @@
       @blur="onBlur"
       @keyup.enter="onEnter"
       class="process-input"
-      placeholder="ex) x값은 {x}이다."
+      placeholder="ex) x값은 (x)이다."
     />
     <svg class="clip-svg" viewBox="0 0 200 60" preserveAspectRatio="none">
       <path d="M0,0 H200 V45 Q170,35 100,50 Q30,65 0,55 V60 H200 V0 Z" />

@@ -496,10 +496,12 @@ const findNearestLoopEnd = (item: CanvasItem, items: CanvasItem[]): CanvasItem |
 };
 
 let code = '';
+let variable_list:string[] =[];
 
 const compile = (item: SortedCanvasItem): void => {
   switch(item.type){
     case 'Variable':
+      variable_list.push(item.name);
       code += `let ${item.name};\n`;
       break;
     case 'Process':
@@ -539,7 +541,18 @@ const compileInput = (varName: string): void => {
 }
 
 const compileOutput = (varName: string): void => {
-  code += `terminal.print(String(${varName}));\n`;
+  // code += `terminal.print(\`${varName}\`);\n`;
+  if(varName.includes('(')){
+    code += `terminal.print(\`${strFormat(varName)}\`)`
+  }else{
+    if(varName in variable_list){
+      code += `terminal.print(${varName});\n`;
+    }
+    else{
+      code += `terminal.print("${varName}");\n`;
+    }
+  }
+  // code += 'terminal.print(`${' + varName + '}`);\n';
 }
 
 const compileLoopStart = (condition: string): void => {
@@ -566,6 +579,31 @@ const compileDecision = (item: SortedCanvasItem): void => {
   code += "}\n";
 }
 
+const strFormat = (str: string): string => {
+    const regex = /\(([^)]+)\)/g;
+    let result = str;
+    let match: RegExpExecArray | null;
+    let offset = 0;
+
+    while ((match = regex.exec(str)) !== null) {
+        const originalStart = match.index;
+        const originalEnd = regex.lastIndex;
+        const content = match[1];
+        
+        // 새로운 문자열 생성
+        const replacement = '$'+`{${content}}`;
+        
+        // 원본 문자열에서 해당 부분을 교체
+        result = result.substring(0, originalStart + offset) + 
+                 replacement + 
+                 result.substring(originalEnd + offset);
+        
+        // 다음 검색을 위해 오프셋 조정
+        offset += replacement.length - (originalEnd - originalStart);
+    }
+
+    return result;
+}
 // const runCode = async () => {
 //   if (!terminalRef.value) return;
 //   terminalRef.value.clearTerminal();
@@ -588,6 +626,7 @@ const compileDecision = (item: SortedCanvasItem): void => {
 // compile 함수 사용 예시
 const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
   code = ''; // 코드 초기화
+  variable_list = []; // 변수 목록 ���기화
   if (sortedCanvasItems) {
     compile(sortedCanvasItems);
     console.log(code); // 생성된 코드 출력

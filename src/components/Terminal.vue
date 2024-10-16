@@ -15,11 +15,11 @@
                 placeholder="Enter your input..."
               /> -->
               <input 
-  v-model="item.value" 
-  @keyup.enter="submitScan(index)"
-  :ref="el => { if (el) scanInputRefs[index] = el as HTMLInputElement }"
-  placeholder="Enter your input..."
-/>
+                v-model="item.value" 
+                @keyup.enter="submitScan(index)"
+                :ref="el => { if (el) scanInputRefs[index] = el as HTMLInputElement }"
+                placeholder="Enter your input..."
+                />
 
             </div>
           </div>
