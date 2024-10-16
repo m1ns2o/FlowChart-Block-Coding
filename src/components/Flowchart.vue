@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, defineProps, defineEmits, nextTick } from 'vue'
-// import pako from 'pako';
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import Start from './Start.vue'
 import Process from './Process.vue'
 import Decision from './Decision.vue'
@@ -451,72 +451,49 @@ const updateItemName = (index: number, newName: string) => {
 //   return JSON.parse(decompressed);
 // };
 
-// const saveToLocalStorageAndURL = () => {
-//   try {
-//     const compressedData = compressData(canvasItems.value);
-//     localStorage.setItem('compressedCanvasItems', compressedData);
-    
-//     const params = new URLSearchParams();
-//     params.set('data', compressedData);
-    
-//     const newUrl = `${window.location.pathname}?${params.toString()}`;
-//     window.history.pushState({}, '', newUrl);
-//     console.log('Compressed data saved to localStorage and URL');
-//   } catch (error) {
-//     console.error('Error saving compressed data:', error);
-//   }
-// };
 
-// const loadData = () => {
-//   const params = new URLSearchParams(window.location.search);
-//   const compressedDataFromURL = params.get('data');
+const compressData = (data : CanvasItem[]) => {
+  const jsonString = JSON.stringify(data);
+  return compressToEncodedURIComponent(jsonString);
+};
 
-//   if (compressedDataFromURL) {
-//     console.log('Loading compressed data from URL');
-//     canvasItems.value = decompressData(compressedDataFromURL);
-//   } else {
-//     console.log('Loading compressed data from localStorage');
-//     const compressedDataFromStorage = localStorage.getItem('compressedCanvasItems');
-    
-//     if (compressedDataFromStorage) {
-//       canvasItems.value = decompressData(compressedDataFromStorage);
-//     }
-//   }
-// };
+const decompressData = (compressedData:string) => {
+  const decompressed = decompressFromEncodedURIComponent(compressedData);
+  return JSON.parse(decompressed);
+};
 
 const saveToLocalStorageAndURL = () => {
   try {
-    localStorage.setItem('canvasItems', JSON.stringify(canvasItems.value))
-    const params = new URLSearchParams()
-    params.set('canvasItems', JSON.stringify(canvasItems.value))
+    const compressedData = compressData(canvasItems.value);
+    localStorage.setItem('compressedCanvasItems', compressedData);
     
-    // 현재 URL 업데이트
-    const newUrl = `${window.location.pathname}?${params.toString()}`
-    window.history.pushState({}, '', newUrl)
-    console.log('Data saved to localStorage and URL')
+    const params = new URLSearchParams();
+    params.set('data', compressedData);
+    
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.pushState({}, '', newUrl);
+    console.log('Compressed data saved to localStorage and URL');
   } catch (error) {
-    console.error('Error saving data:', error)
+    console.error('Error saving compressed data:', error);
   }
-}
+};
 
 const loadData = () => {
-  const params = new URLSearchParams(window.location.search)
-  const canvasItemsFromURL = params.get('canvasItems')
+  const params = new URLSearchParams(window.location.search);
+  const compressedDataFromURL = params.get('data');
 
-  if (canvasItemsFromURL) {
-    // URL에 데이터가 있으면 URL에서 로드
-    console.log('Loading data from URL')
-    canvasItems.value = JSON.parse(canvasItemsFromURL)
+  if (compressedDataFromURL) {
+    console.log('Loading compressed data from URL');
+    canvasItems.value = decompressData(compressedDataFromURL);
   } else {
-    // URL에 데이터가 없으면 localStorage에서 로드
-    console.log('Loading data from localStorage')
-    const canvasItemsFromStorage = localStorage.getItem('canvasItems')
+    console.log('Loading compressed data from localStorage');
+    const compressedDataFromStorage = localStorage.getItem('compressedCanvasItems');
     
-    if (canvasItemsFromStorage) {
-      canvasItems.value = JSON.parse(canvasItemsFromStorage)
+    if (compressedDataFromStorage) {
+      canvasItems.value = decompressData(compressedDataFromStorage);
     }
   }
-}
+};
 
 interface Connection {
   path: string;
