@@ -82,6 +82,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, defineProps, defineEmits, nextTick } from 'vue'
+// import pako from 'pako';
 import Start from './Start.vue'
 import Process from './Process.vue'
 import Decision from './Decision.vue'
@@ -331,7 +332,7 @@ const onDrop = (event: DragEvent) => {
   })
   emit('update:canvasItems', canvasItems.value)
   updateCanvasSize()
-  saveToLocalStorage()
+  saveToLocalStorageAndURL()
 }
 
 const startItemDrag = (event: MouseEvent, index: number) => {
@@ -357,7 +358,7 @@ const doDrag = (event: MouseEvent) => {
 
 const stopDrag = () => {
   isDragging.value = false
-  saveToLocalStorage()
+  saveToLocalStorageAndURL()
 }
 
 const throttle = (func: Function, limit: number) => {
@@ -379,7 +380,7 @@ const deleteItem = (index: number) => {
   canvasItems.value.splice(index, 1)
   selectedItemIndex.value = null
   emit('update:canvasItems', canvasItems.value)
-  saveToLocalStorage()
+  saveToLocalStorageAndURL()
 }
 
 const updateCanvasSize = () => {
@@ -420,27 +421,100 @@ const autoScroll = () => {
 const updateItemName = (index: number, newName: string) => {
   canvasItems.value[index].name = newName
   emit('update:canvasItems', canvasItems.value)
-  saveToLocalStorage()
+  saveToLocalStorageAndURL()
 }
 
-const saveToLocalStorage = () => {
+// const saveToLocalStorageAndURL = () => {
+//   try {
+//     localStorage.setItem('canvasItems', JSON.stringify(canvasItems.value))
+//     localStorage.setItem('sortedCanvasItems', JSON.stringify(sortedCanvasItems.value))
+//     const params = new URLSearchParams()
+//     params.set('canvasItems', JSON.stringify(canvasItems.value))
+//     params.set('sortedCanvasItems', JSON.stringify(sortedCanvasItems.value))
+    
+//     // 현재 URL 업데이트
+//     const newUrl = `${window.location.pathname}?${params.toString()}`
+//     window.history.pushState({}, '', newUrl)
+//     // console.log(sortedCanvasItems.value)
+//   } catch (error) {
+//     console.error('Error saving to localStorage:', error)
+//   }
+// }
+// const compressData = (data) => {
+//   const jsonString = JSON.stringify(data);
+//   const compressed = pako.deflate(jsonString, { to: 'string' });
+//   return btoa(compressed);
+// };
+
+// const decompressData = (compressedData) => {
+//   const decompressed = pako.inflate(atob(compressedData), { to: 'string' });
+//   return JSON.parse(decompressed);
+// };
+
+// const saveToLocalStorageAndURL = () => {
+//   try {
+//     const compressedData = compressData(canvasItems.value);
+//     localStorage.setItem('compressedCanvasItems', compressedData);
+    
+//     const params = new URLSearchParams();
+//     params.set('data', compressedData);
+    
+//     const newUrl = `${window.location.pathname}?${params.toString()}`;
+//     window.history.pushState({}, '', newUrl);
+//     console.log('Compressed data saved to localStorage and URL');
+//   } catch (error) {
+//     console.error('Error saving compressed data:', error);
+//   }
+// };
+
+// const loadData = () => {
+//   const params = new URLSearchParams(window.location.search);
+//   const compressedDataFromURL = params.get('data');
+
+//   if (compressedDataFromURL) {
+//     console.log('Loading compressed data from URL');
+//     canvasItems.value = decompressData(compressedDataFromURL);
+//   } else {
+//     console.log('Loading compressed data from localStorage');
+//     const compressedDataFromStorage = localStorage.getItem('compressedCanvasItems');
+    
+//     if (compressedDataFromStorage) {
+//       canvasItems.value = decompressData(compressedDataFromStorage);
+//     }
+//   }
+// };
+
+const saveToLocalStorageAndURL = () => {
   try {
     localStorage.setItem('canvasItems', JSON.stringify(canvasItems.value))
-    localStorage.setItem('sortedCanvasItems', JSON.stringify(sortedCanvasItems.value))
-    // console.log(sortedCanvasItems.value)
+    const params = new URLSearchParams()
+    params.set('canvasItems', JSON.stringify(canvasItems.value))
+    
+    // 현재 URL 업데이트
+    const newUrl = `${window.location.pathname}?${params.toString()}`
+    window.history.pushState({}, '', newUrl)
+    console.log('Data saved to localStorage and URL')
   } catch (error) {
-    console.error('Error saving to localStorage:', error)
+    console.error('Error saving data:', error)
   }
 }
 
-const loadFromLocalStorage = () => {
-  try {
-    const savedCanvasItems = localStorage.getItem('canvasItems')
-    if (savedCanvasItems) {
-      canvasItems.value = JSON.parse(savedCanvasItems)
+const loadData = () => {
+  const params = new URLSearchParams(window.location.search)
+  const canvasItemsFromURL = params.get('canvasItems')
+
+  if (canvasItemsFromURL) {
+    // URL에 데이터가 있으면 URL에서 로드
+    console.log('Loading data from URL')
+    canvasItems.value = JSON.parse(canvasItemsFromURL)
+  } else {
+    // URL에 데이터가 없으면 localStorage에서 로드
+    console.log('Loading data from localStorage')
+    const canvasItemsFromStorage = localStorage.getItem('canvasItems')
+    
+    if (canvasItemsFromStorage) {
+      canvasItems.value = JSON.parse(canvasItemsFromStorage)
     }
-  } catch (error) {
-    console.error('Error loading from localStorage:', error)
   }
 }
 
@@ -604,24 +678,6 @@ const strFormat = (str: string): string => {
 
     return result;
 }
-// const runCode = async () => {
-//   if (!terminalRef.value) return;
-//   terminalRef.value.clearTerminal();
-//   terminalRef.value.print("프로그램 실행 시작...");
-
-//   try {
-//     const execCode = `
-//       (async () => {
-//         ${code}
-//       })()
-//     `;
-//     await eval(execCode);
-//   } catch (error) {
-//     terminalRef.value.print(`오류 발생: ${error}`);
-//   } finally {
-//     terminalRef.value.print("프로그램 실행 종료.");
-//   }
-// }
 
 // compile 함수 사용 예시
 const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
@@ -658,11 +714,12 @@ const runCode = async (terminal : any) => {
 }
 
 watch(canvasItems, () => {
-  saveToLocalStorage()
+  saveToLocalStorageAndURL()
 }, { deep: true })
 
 onMounted(() => {
-  loadFromLocalStorage()
+  // loadFromLocalStorage()
+  loadData()
   updateCanvasSize()
   window.addEventListener('resize', updateCanvasSize)
 })
