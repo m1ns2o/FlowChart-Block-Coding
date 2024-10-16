@@ -14,6 +14,8 @@
     </div>
     
     <div class="page">
+      <!-- <terminal :toggle="terminal_state"/> -->
+      <Terminal ref="terminalRef" v-model:toggle="terminal_state"/>
       <button @click="runCompile(sortedCanvasItems)">RUN</button>
       <div
         ref="canvasRef"
@@ -79,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, defineProps, defineEmits } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, defineProps, defineEmits, nextTick } from 'vue'
 import Start from './Start.vue'
 import Process from './Process.vue'
 import Decision from './Decision.vue'
@@ -89,6 +91,7 @@ import Input from './Input.vue'
 import Output from './Output.vue'
 import LoopStart from './LoopStart.vue'
 import LoopEnd from './LoopEnd.vue'
+import Terminal from './Terminal.vue'
 
 interface FlowchartComponent {
   type: string;
@@ -148,6 +151,8 @@ const getComponent = (type: string) => {
   }
   return componentMap[type] || Process
 }
+
+const terminal_state = ref(true)
 
 const createConnection = (from: CanvasItem, to: CanvasItem, color: string): Connection => {
   const fromWidth = from.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
@@ -468,7 +473,87 @@ const findNearestLoopEnd = (item: CanvasItem, items: CanvasItem[]): CanvasItem |
 //   next: SortedCanvasItem | null;
 // }
 
-let code = ''
+// let code = ''
+
+// const compile = (item: SortedCanvasItem): void => {
+//   switch(item.type){
+//     case 'Variable':
+//       code += `let ${item.name};\n`;
+//       break;
+//     case 'Process':
+//       code += `${item.name};\n`;
+//       break;
+//     case 'Input':
+//       // code += `const temp = prompt("입력", "");
+//       // ${item.name} = isNaN(Number(temp)) ? temp : Number(temp);\n`;
+//       compileInput(item.name)
+//       break;
+//     case 'Output':
+//       code += `console.log(${item.name});\n`;
+//       break;
+//     case 'LoopStart':
+//       compileLoopStart(item.name);
+//       break;
+//     case 'LoopEnd':
+//       compileLoopEnd();
+//       break;
+//     case 'Decision':
+//       compileDecision(item);
+//       break;
+//     default:
+//       // console.warn(`Unsupported type: ${item.type}`);
+//       break;
+//   }
+
+//   // 다음 아이템이 있으면 재귀적으로 compile 호출
+//   if (item.next) {
+//     compile(item.next);
+//   }
+// }
+
+
+// const compileInput = (var_name: string): void => {
+//   code += `terminalRef.value?.scan(temp)`
+//   code += `${var_name} = isNaN(Number(temp))? temp : Number(temp);\n`;
+// }
+
+// const compileLoopStart = (condition: string): void => {
+//   if (isNaN(Number(condition))) {
+//     code += `while(${condition}) {\n`;
+//   } else {
+//     code += `for(let i = 0; i < ${condition}; i++) {\n`;
+//   }
+// }
+
+// const compileLoopEnd = (): void => {
+//   code += "}\n";
+// }
+
+// const compileDecision = (item: SortedCanvasItem): void => {
+//   code += `if (${item.name}) {\n`;
+//   if (item.children[0]) {
+//     compile(item.children[0]);
+//   }
+//   code += "} else {\n";
+//   if (item.children[1]) {
+//     compile(item.children[1]);
+//   }
+//   code += "}\n";
+// }
+
+// // compile 함수 사용 예시
+// const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
+//   code = ''; // 코드 초기화
+//   if (sortedCanvasItems) {
+//     compile(sortedCanvasItems);
+//     console.log(code); // 생성된 코드 출력
+//   } else {
+//     console.warn('No items to compile');
+//   }
+// }
+
+
+let code = '';
 
 const compile = (item: SortedCanvasItem): void => {
   switch(item.type){
@@ -479,11 +564,10 @@ const compile = (item: SortedCanvasItem): void => {
       code += `${item.name};\n`;
       break;
     case 'Input':
-      code += `const temp = prompt("입력", "");
-      ${item.name} = isNaN(Number(temp)) ? temp : Number(temp);\n`;
+      compileInput(item.name);
       break;
     case 'Output':
-      code += `console.log(${item.name});\n`;
+      compileOutput(item.name);
       break;
     case 'LoopStart':
       compileLoopStart(item.name);
@@ -495,14 +579,25 @@ const compile = (item: SortedCanvasItem): void => {
       compileDecision(item);
       break;
     default:
-      // console.warn(`Unsupported type: ${item.type}`);
       break;
   }
 
-  // 다음 아이템이 있으면 재귀적으로 compile 호출
   if (item.next) {
     compile(item.next);
   }
+}
+
+const compileInput = (varName: string): void => {
+  code += `await new Promise(resolve => {
+    terminalRef.value?.scan(temp => {
+      ${varName} = isNaN(Number(temp)) ? temp : Number(temp);
+      resolve();
+    });
+  });\n`;
+}
+
+const compileOutput = (varName: string): void => {
+  code += `terminalRef.value?.print(String(${varName}));\n`;
 }
 
 const compileLoopStart = (condition: string): void => {
@@ -535,8 +630,32 @@ const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
   if (sortedCanvasItems) {
     compile(sortedCanvasItems);
     console.log(code); // 생성된 코드 출력
+    // terminal_state.value = true;
+    terminalRef.value?.openTerminal()
+    nextTick(() => { // DOM 업데이트 후 runCode 실행
+      runCode();
+    });
   } else {
     console.warn('No items to compile');
+  }
+}
+
+const runCode = async () => {
+  if (!terminalRef.value) return;
+  
+  terminalRef.value.print("프로그램 실행 시작...");
+
+  try {
+    const execCode = `
+      (async () => {
+        ${code}
+      })()
+    `;
+    await eval(execCode);
+  } catch (error) {
+    terminalRef.value.print(`오류 발생: ${error}`);
+  } finally {
+    terminalRef.value.print("프로그램 실행 종료.");
   }
 }
 
@@ -553,6 +672,10 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', updateCanvasSize)
 })
+
+
+const terminalRef = ref<InstanceType<typeof Terminal> | null>(null);
+
 </script>
 
 <style scoped>
@@ -615,6 +738,7 @@ onUnmounted(() => {
   align-content: center;
   align-items: center;
   gap: 30px;
+  position: relative;
 }
 
 .page > button{
