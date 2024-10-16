@@ -15,7 +15,7 @@
     
     <div class="page">
       <!-- <terminal :toggle="terminal_state"/> -->
-      <Terminal ref="terminalRef" v-model:toggle="terminal_state"/>
+      <Terminal ref="terminalRef"/>
       <button @click="runCompile(sortedCanvasItems)">RUN</button>
       <div
         ref="canvasRef"
@@ -152,7 +152,7 @@ const getComponent = (type: string) => {
   return componentMap[type] || Process
 }
 
-const terminal_state = ref(true)
+// const terminal_state = ref(true)
 
 const createConnection = (from: CanvasItem, to: CanvasItem, color: string): Connection => {
   const fromWidth = from.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
@@ -464,95 +464,6 @@ const findNearestLoopEnd = (item: CanvasItem, items: CanvasItem[]): CanvasItem |
   );
 };
 
-
-// 기존의 createConnection 함수는 그대로 유지
-
-// SortedCanvasItem 인터페이스 정의 (이전과 동일)
-// interface SortedCanvasItem extends CanvasItem {
-//   children: SortedCanvasItem[];
-//   next: SortedCanvasItem | null;
-// }
-
-// let code = ''
-
-// const compile = (item: SortedCanvasItem): void => {
-//   switch(item.type){
-//     case 'Variable':
-//       code += `let ${item.name};\n`;
-//       break;
-//     case 'Process':
-//       code += `${item.name};\n`;
-//       break;
-//     case 'Input':
-//       // code += `const temp = prompt("입력", "");
-//       // ${item.name} = isNaN(Number(temp)) ? temp : Number(temp);\n`;
-//       compileInput(item.name)
-//       break;
-//     case 'Output':
-//       code += `console.log(${item.name});\n`;
-//       break;
-//     case 'LoopStart':
-//       compileLoopStart(item.name);
-//       break;
-//     case 'LoopEnd':
-//       compileLoopEnd();
-//       break;
-//     case 'Decision':
-//       compileDecision(item);
-//       break;
-//     default:
-//       // console.warn(`Unsupported type: ${item.type}`);
-//       break;
-//   }
-
-//   // 다음 아이템이 있으면 재귀적으로 compile 호출
-//   if (item.next) {
-//     compile(item.next);
-//   }
-// }
-
-
-// const compileInput = (var_name: string): void => {
-//   code += `terminalRef.value?.scan(temp)`
-//   code += `${var_name} = isNaN(Number(temp))? temp : Number(temp);\n`;
-// }
-
-// const compileLoopStart = (condition: string): void => {
-//   if (isNaN(Number(condition))) {
-//     code += `while(${condition}) {\n`;
-//   } else {
-//     code += `for(let i = 0; i < ${condition}; i++) {\n`;
-//   }
-// }
-
-// const compileLoopEnd = (): void => {
-//   code += "}\n";
-// }
-
-// const compileDecision = (item: SortedCanvasItem): void => {
-//   code += `if (${item.name}) {\n`;
-//   if (item.children[0]) {
-//     compile(item.children[0]);
-//   }
-//   code += "} else {\n";
-//   if (item.children[1]) {
-//     compile(item.children[1]);
-//   }
-//   code += "}\n";
-// }
-
-// // compile 함수 사용 예시
-// const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
-//   code = ''; // 코드 초기화
-//   if (sortedCanvasItems) {
-//     compile(sortedCanvasItems);
-//     console.log(code); // 생성된 코드 출력
-//   } else {
-//     console.warn('No items to compile');
-//   }
-// }
-
-
 let code = '';
 
 const compile = (item: SortedCanvasItem): void => {
@@ -630,9 +541,11 @@ const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
   if (sortedCanvasItems) {
     compile(sortedCanvasItems);
     console.log(code); // 생성된 코드 출력
-    // terminal_state.value = true;
+    
     terminalRef.value?.openTerminal()
     nextTick(() => { // DOM 업데이트 후 runCode 실행
+      // terminal_state.value = true;
+      // console.log(terminal_state.value)
       runCode();
     });
   } else {

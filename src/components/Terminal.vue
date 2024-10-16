@@ -24,14 +24,14 @@
   <script setup lang="ts">
   import { ref, defineExpose, nextTick, watch } from 'vue';
   
-  const props = defineProps({
-    toggle: {
-      type: Boolean,
-      required: true,
-    }
-  });
+//   const props = defineProps({
+//     toggle: {
+//       type: Boolean,
+//       required: true,
+//     }
+//   });
 
-  const localToggle = ref(props.toggle);
+  const localToggle = ref(false);
   const emit = defineEmits(['update:toggle']);
   
 //   const emit = defineEmits(['update:toggle']);
@@ -86,15 +86,16 @@
   
   defineExpose({
     print,
-    scan
+    scan,
+    openTerminal,
   });
   
-  watch(() => props.toggle, (newValue) => {
-    if (newValue) {
-      // 터미널이 열릴 때 필요한 초기화 작업을 여기에 추가할 수 있습니다.
-      scrollToBottom();
-    }
-  });
+//   watch(() => props.toggle, (newValue) => {
+//     if (newValue) {
+//       // 터미널이 열릴 때 필요한 초기화 작업을 여기에 추가할 수 있습니다.
+//       scrollToBottom();
+//     }
+//   });
   </script>
   
   <style scoped>
