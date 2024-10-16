@@ -552,8 +552,7 @@ let variable_list:string[] =[];
 const compile = (item: SortedCanvasItem): void => {
   switch(item.type){
     case 'Variable':
-      variable_list.push(item.name);
-      code += `let ${item.name};\n`;
+      compileVariable(item.name)
       break;
     case 'Process':
       code += `${item.name};\n`;
@@ -582,6 +581,16 @@ const compile = (item: SortedCanvasItem): void => {
   }
 }
 
+const compileVariable = (varname:string)=>{
+  const variableName = varname.split('=')[0].trim();
+  console.log(variableName)
+    if (!variable_list.includes(variableName)) {
+      variable_list.push(variableName);
+      console.log(variable_list)
+    }
+    code += `let ${varname};\n`;
+}
+
 const compileInput = (varName: string): void => {
   code += `await new Promise(resolve => {
     terminal.scan(temp => {
@@ -593,10 +602,11 @@ const compileInput = (varName: string): void => {
 
 const compileOutput = (varName: string): void => {
   // code += `terminal.print(\`${varName}\`);\n`;
+  console.log(variable_list.join)
   if(varName.includes('(')){
     code += `terminal.print(\`${strFormat(varName)}\`)`
   }else{
-    if(varName in variable_list){
+    if(variable_list.includes(varName)){
       code += `terminal.print(${varName});\n`;
     }
     else{
