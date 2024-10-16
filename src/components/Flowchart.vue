@@ -113,7 +113,7 @@ interface CanvasSize {
   height: number;
 }
 
-const props = defineProps<{
+defineProps<{
   flowchartComponents: FlowchartComponent[]
 }>()
 
@@ -154,11 +154,33 @@ const getComponent = (type: string) => {
 
 // const terminal_state = ref(true)
 
-const createConnection = (from: CanvasItem, to: CanvasItem, color: string): Connection => {
-  const fromWidth = from.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
-  const fromHeight = from.type === 'Loop' ? LOOP_HEIGHT : COMPONENT_HEIGHT
-  const toWidth = to.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
+// const createConnection = (from: CanvasItem, to: CanvasItem, color: string): Connection => {
+//   const fromWidth = from.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
+//   const fromHeight = from.type === 'Loop' ? LOOP_HEIGHT : COMPONENT_HEIGHT
+//   const toWidth = to.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH
   
+//   const startX = from.x + fromWidth / 2;
+//   const startY = from.y + fromHeight;
+//   const endX = to.x + toWidth / 2;
+//   const endY = to.y;
+
+//   let path: string;
+//   if (to.y >= from.y) {
+//     const midY = (startY + endY) / 2;
+//     path = `M${startX},${startY} C${startX},${midY} ${endX},${midY} ${endX},${endY}`;
+//   } else {
+//     const midX = (startX + endX) / 2;
+//     path = `M${startX},${startY} C${midX},${startY} ${midX},${endY} ${endX},${endY}`;
+//   }
+  
+//   return { path, color };
+// };
+
+const createConnection = (from: CanvasItem, to: CanvasItem, color: string): Connection => {
+  const fromWidth = from.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH;
+  const fromHeight = from.type === 'Loop' ? LOOP_HEIGHT : COMPONENT_HEIGHT;
+  const toWidth = to.type === 'Loop' ? LOOP_WIDTH : COMPONENT_WIDTH;
+
   const startX = from.x + fromWidth / 2;
   const startY = from.y + fromHeight;
   const endX = to.x + toWidth / 2;
@@ -172,9 +194,18 @@ const createConnection = (from: CanvasItem, to: CanvasItem, color: string): Conn
     const midX = (startX + endX) / 2;
     path = `M${startX},${startY} C${midX},${startY} ${midX},${endY} ${endX},${endY}`;
   }
-  
-  return { path, color };
+
+  return { 
+    path, 
+    color, 
+    style: '', // Default style for regular connections
+    startX, 
+    startY, 
+    endX, 
+    endY 
+  };
 };
+
 
 const connections = computed((): Connection[] => {
   const lines: Connection[] = [];
@@ -572,7 +603,7 @@ const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
   }
 }
 
-const runCode = async (terminal) => {
+const runCode = async (terminal : any) => {
   if (!terminal) return;
   terminal.clearTerminal();
   terminal.print("프로그램 실행 시작...");

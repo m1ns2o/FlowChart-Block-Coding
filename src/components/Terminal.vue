@@ -8,12 +8,19 @@
           <div v-for="(item, index) in terminalContent" :key="index">
             <p v-if="item.type === 'print'">{{ item.content }}</p>
             <div v-else-if="item.type === 'scan'" class="scan-input">
-              <input 
+              <!-- <input 
                 v-model="item.value" 
                 @keyup.enter="submitScan(index)"
                 :ref="el => { if (el) scanInputRefs[index] = el }"
                 placeholder="Enter your input..."
-              />
+              /> -->
+              <input 
+  v-model="item.value" 
+  @keyup.enter="submitScan(index)"
+  :ref="el => { if (el) scanInputRefs[index] = el as HTMLInputElement }"
+  placeholder="Enter your input..."
+/>
+
             </div>
           </div>
         </div>
@@ -22,7 +29,7 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, defineExpose, nextTick, watch } from 'vue';
+  import { ref, defineExpose, nextTick } from 'vue';
   
 //   const props = defineProps({
 //     toggle: {

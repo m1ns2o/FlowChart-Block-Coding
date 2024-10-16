@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import Flowchart from './components/Flowchart.vue'
 
 const flowchartComponents = ref([
@@ -33,9 +33,9 @@ const flowchartComponents = ref([
 
 const canvasItems = ref([])
 
-const connections = computed(() => {
-  return canvasItems.value.length > 1 ? canvasItems.value.length - 1 : 0
-})
+// const connections = computed(() => {
+//   return canvasItems.value.length > 1 ? canvasItems.value.length - 1 : 0
+// })
 </script>
 
 <style>
