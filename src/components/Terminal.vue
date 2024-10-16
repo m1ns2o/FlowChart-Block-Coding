@@ -72,6 +72,11 @@
       }
     });
   };
+
+  const clearTerminal = ()=>{
+    terminalContent.value = [];
+    scanInputRefs.value = [];
+  }
   
   const closeTerminal = () => {
     // emit('update:toggle', false);
@@ -88,6 +93,7 @@
     print,
     scan,
     openTerminal,
+    clearTerminal,
   });
   
 //   watch(() => props.toggle, (newValue) => {

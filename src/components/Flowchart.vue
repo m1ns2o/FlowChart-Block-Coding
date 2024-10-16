@@ -555,7 +555,7 @@ const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
 
 const runCode = async () => {
   if (!terminalRef.value) return;
-  
+  terminalRef.value.clearTerminal();
   terminalRef.value.print("프로그램 실행 시작...");
 
   try {
