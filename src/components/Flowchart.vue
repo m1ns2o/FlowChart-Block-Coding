@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="components-list">
-      <div class="nav_style"></div>
+      <!-- <div class="nav_style"></div> -->
       <div
         v-for="component in flowchartComponents"
         :key="component.type"
@@ -655,19 +655,12 @@ const strFormat = (str: string): string => {
         const originalStart = match.index;
         const originalEnd = regex.lastIndex;
         const content = match[1];
-        
-        // 새로운 문자열 생성
         const replacement = '$'+`{${content}}`;
-        
-        // 원본 문자열에서 해당 부분을 교체
         result = result.substring(0, originalStart + offset) + 
                  replacement + 
                  result.substring(originalEnd + offset);
-        
-        // 다음 검색을 위해 오프셋 조정
         offset += replacement.length - (originalEnd - originalStart);
     }
-
     return result;
 }
 
@@ -713,9 +706,6 @@ const runCode = async (terminal: any) => {
   }
 }
 
-// function delay(ms: number): Promise<void> {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
 
 watch(canvasItems, () => {
   saveToLocalStorageAndURL()
@@ -751,6 +741,7 @@ const terminalRef = ref<InstanceType<typeof Terminal> | null>(null);
   height: 5%;
   margin: 0;
   padding: 0;
+  /* padding-bottom: 50px; */
 }
 
 .components-list {
@@ -760,12 +751,20 @@ const terminalRef = ref<InstanceType<typeof Terminal> | null>(null);
   gap: 50px;
   width: 300px;
   align-items: center;
+  /* align-content: center; */
   overflow-y: auto;
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  /* padding-bottom: 30px; */
+  padding: 30px;
 }
 
 .draggable-component {
   cursor: move;
+}
+
+.draggable-component:last-child{
+  /* margin-bottom: 30px; */
+  padding-bottom: 50px;
 }
 
 .canvas {
@@ -804,6 +803,8 @@ const terminalRef = ref<InstanceType<typeof Terminal> | null>(null);
   margin-top: 20px;
   width: 200px;
   height: 60px;
-  background-color: skyblue;
+  background-color: white;
+  /* border: 2px black solid; */
+  box-shadow: 0 5px 10px rgba(0,0,0,0.19), 0 3px 3px rgba(0,0,0,0.23);
 }
 </style>
