@@ -609,7 +609,7 @@ const compileOutput = (varName: string): void => {
   // code += `terminal.print(\`${varName}\`);\n`;
   console.log(variable_list.join)
   if(varName.includes('(')){
-    code += `terminal.print(\`${strFormat(varName)}\`)`
+    code += `terminal.print(\`${strFormat(varName)}\`)\n`;
   }else{
     if(variable_list.includes(varName)){
       code += `terminal.print(${varName});\n`;
@@ -692,8 +692,7 @@ const runCode = async (terminal: any) => {
   try {
     const asyncFunction = new Function('terminal', `
       return (async () => { 
-        const print = terminal.print;
-        const scan = terminal.scan;
+        
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
         ${code}
       })()
