@@ -48,10 +48,20 @@
   const terminalRef = ref<HTMLElement | null>(null);
   let currentCallback: ((value: string) => void) | null = null;
   
-  const print = (content: string) => {
-    terminalContent.value.push({ type: 'print', content });
-    scrollToBottom();
-  };
+  // const print = (content: string) => {
+  //   terminalContent.value.push({ type: 'print', content });
+  //   scrollToBottom();
+  // };
+  
+  const print = async (content: string): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      terminalContent.value.push({ type: 'print', content });
+      scrollToBottom();
+      resolve();
+    }, 0);
+  });
+};
   
   const scan = (callback: (value: string) => void) => {
     currentCallback = callback;

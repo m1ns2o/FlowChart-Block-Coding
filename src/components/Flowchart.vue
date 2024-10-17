@@ -93,6 +93,7 @@ import Output from './Output.vue'
 import LoopStart from './LoopStart.vue'
 import LoopEnd from './LoopEnd.vue'
 import Terminal from './Terminal.vue'
+import Delay from './Delay.vue'
 
 interface FlowchartComponent {
   type: string;
@@ -149,6 +150,7 @@ const getComponent = (type: string) => {
     'Loop': Loop,
     'LoopStart': LoopStart,
     'LoopEnd': LoopEnd,
+    'Delay': Delay,
   }
   return componentMap[type] || Process
 }
@@ -572,6 +574,9 @@ const compile = (item: SortedCanvasItem): void => {
     case 'Decision':
       compileDecision(item);
       break;
+    case 'Delay':
+      code += `await delay(${Number(item.name) * 1000});\n`;
+      break;
     default:
       break;
   }
@@ -685,20 +690,32 @@ const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
   }
 }
 
-const runCode = async (terminal : any) => {
+
+const runCode = async (terminal: any) => {
   if (!terminal) return;
   terminal.clearTerminal();
-  terminal.print("프로그램 실행 시작...");
+  await terminal.print("프로그램 실행 시작...");
 
   try {
-    const asyncFunction = new Function('terminal', 'return (async () => { ' + code + ' })()');
+    const asyncFunction = new Function('terminal', `
+      return (async () => { 
+        const print = terminal.print;
+        const scan = terminal.scan;
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        ${code}
+      })()
+    `);
     await asyncFunction(terminal);
   } catch (error) {
-    terminal.print(`오류 발생: ${error}`);
+    await terminal.print(`오류 발생: ${error}`);
   } finally {
-    terminal.print("프로그램 실행 종료.");
+    await terminal.print("프로그램 실행 종료.");
   }
 }
+
+// function delay(ms: number): Promise<void> {
+//   return new Promise(resolve => setTimeout(resolve, ms));
+// }
 
 watch(canvasItems, () => {
   saveToLocalStorageAndURL()
