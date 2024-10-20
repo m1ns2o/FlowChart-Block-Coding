@@ -1,11 +1,11 @@
 <template>
-  <div style="width: 100vw; height: 100vh;">
+  <!-- <div style="width: 100vw; height: 100vh;"> -->
     <Flowchart
       :flowchartComponents="flowchartComponents"
       v-model:canvasItems="canvasItems"
       class="flowchart"
     />
-  </div>
+  <!-- </div> -->
 </template>
 
 <script setup lang="ts">

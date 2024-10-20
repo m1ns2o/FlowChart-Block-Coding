@@ -16,7 +16,10 @@
     <div class="page">
       <!-- <terminal :toggle="terminal_state"/> -->
       <Terminal ref="terminalRef"/>
-      <button @click="runCompile(sortedCanvasItems)">RUN</button>
+      <!-- <button >RUN</button> -->
+      <v-btn @click="runCompile(sortedCanvasItems)">
+        RUN
+      </v-btn>
       <div
         ref="canvasRef"
         class="canvas"
@@ -802,8 +805,8 @@ const terminalRef = ref<InstanceType<typeof Terminal> | null>(null);
   margin-top: 20px;
   width: 200px;
   height: 60px;
-  background-color: white;
+  /* background-color: white; */
   /* border: 2px black solid; */
-  box-shadow: 0 5px 10px rgba(0,0,0,0.19), 0 3px 3px rgba(0,0,0,0.23);
+  /* box-shadow: 0 5px 10px rgba(0,0,0,0.19), 0 3px 3px rgba(0,0,0,0.23); */
 }
 </style>

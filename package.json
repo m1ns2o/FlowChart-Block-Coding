@@ -10,9 +10,11 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "lz-string": "^1.5.0",
+    "pinia": "^2.2.4",
     "vue": "^3.4.37",
     "vue-draggable-next": "^2.2.1",
     "vue-router": "4"
@@ -28,6 +30,8 @@
     "typescript": "^5.5.3",
     "vite": "^5.4.1",
     "vite-plugin-eslint": "^1.8.1",
-    "vue-tsc": "^2.0.29"
+    "vite-plugin-vuetify": "^2.0.4",
+    "vue-tsc": "^2.0.29",
+    "vuetify": "^3.7.3"
   }
 }
