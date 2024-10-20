@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import Flowchart from '../views/FlowchartView.vue'
+// import Flowchart from '../views/FlowchartView.vue'
 import HomeView from '../views/HomeView.vue'
 import Classlogin from '../views/ClassloginView.vue'
 
@@ -10,7 +10,8 @@ const router = createRouter({
     {
       path: '/flowchart',
       name: 'flowchart',
-      component: Flowchart
+      // component: Flowchart
+      component: () => import('../views/FlowchartView.vue') //lazy load
     },
     {
       path: '/classnumber',

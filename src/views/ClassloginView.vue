@@ -3,7 +3,7 @@
       <v-container class="fill-height">
         <v-row justify="center" align="center">
           <v-col cols="12" sm="8" md="6">
-            <v-sheet class="pa-6" rounded="lg">
+            <v-sheet class="pa-6" rounded="lg" elevation="1">
               <v-form @submit.prevent="submitForm" v-model="formValid">
                 <v-text-field
                   v-model="classroomNumber"

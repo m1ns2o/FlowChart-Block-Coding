@@ -1,95 +1,98 @@
 <template>
-    <div class="flowchart-component delay">
-      <input
-        v-model="inputValue"
-        @focus="onFocus"
-        @blur="onBlur"
-        @keyup.enter="onEnter"
-        class="process-input"
-        placeholder="ex) 5"
-      />
-    </div>
-  </template>
-  
-  <script setup>
-  import { ref, watch } from 'vue'
-  
-  const props = defineProps({
-    name: {
-      type: String,
-      default: '기다리기'
-    },
-  })
-  
-  const emit = defineEmits(['update:name', 'blur', 'enter'])
-  
-  const inputValue = ref(props.name)
-  const isDefaultValue = ref(props.name === '기다리기')
-  
-  watch(() => props.name, (newValue) => {
-    inputValue.value = newValue
-    isDefaultValue.value = newValue === '기다리기'
-  })
-  
-  watch(inputValue, (newValue) => {
-    emit('update:name', newValue)
-    isDefaultValue.value = false
-  })
-  
-  const onFocus = () => {
-    if (isDefaultValue.value) {
-      inputValue.value = ''
-      isDefaultValue.value = false
-    }
+  <div class="flowchart-component delay">
+    <input
+      v-model="inputValue"
+      @focus="onFocus"
+      @blur="onBlur"
+      @keyup.enter="onEnter"
+      class="process-input"
+      placeholder="ex) 5"
+    />
+  </div>
+</template>
+
+<script setup>
+import { ref, watch } from "vue";
+
+const props = defineProps({
+  name: {
+    type: String,
+    default: "기다리기",
+  },
+});
+
+const emit = defineEmits(["update:name", "blur", "enter"]);
+
+const inputValue = ref(props.name);
+const isDefaultValue = ref(props.name === "기다리기");
+
+watch(
+  () => props.name,
+  (newValue) => {
+    inputValue.value = newValue;
+    isDefaultValue.value = newValue === "기다리기";
   }
-  
-  const onBlur = () => {
-    if (inputValue.value.trim() === '') {
-      inputValue.value = '기다리기'
-      isDefaultValue.value = true
-    }
-    emit('blur', inputValue.value)
+);
+
+watch(inputValue, (newValue) => {
+  emit("update:name", newValue);
+  isDefaultValue.value = false;
+});
+
+const onFocus = () => {
+  if (isDefaultValue.value) {
+    inputValue.value = "";
+    isDefaultValue.value = false;
   }
-  
-  const onEnter = () => {
-    if (inputValue.value.trim() === '') {
-      inputValue.value = '기다리기'
-      isDefaultValue.value = true
-    }
-    emit('enter', inputValue.value)
+};
+
+const onBlur = () => {
+  if (inputValue.value.trim() === "") {
+    inputValue.value = "기다리기";
+    isDefaultValue.value = true;
   }
-  </script>
-  
-  <style scoped>
-  .flowchart-component {
-    width: 200px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: move;
-    background-color: #fff;
-    border: 1px solid #999;
-    user-select: none;
-    z-index: 1;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  emit("blur", inputValue.value);
+};
+
+const onEnter = () => {
+  if (inputValue.value.trim() === "") {
+    inputValue.value = "기다리기";
+    isDefaultValue.value = true;
   }
-  
-  .process {
-    background-color: #f8f9fa;
-  }
-  
-  .process-input {
-    width: 90%;
-    height: 70%;
-    background: transparent;
-    border: none;
-    text-align: center;
-    font-size: 14px;
-  }
-  
-  .process-input:focus {
-    outline: none;
-    background-color: rgba(255, 255, 255, 0.5);
-  }
-  </style>
+  emit("enter", inputValue.value);
+};
+</script>
+
+<style scoped>
+.flowchart-component {
+  width: 200px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: move;
+  background-color: #fff;
+  border: 1px solid #999;
+  user-select: none;
+  z-index: 1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.process {
+  background-color: #f8f9fa;
+}
+
+.process-input {
+  width: 90%;
+  height: 70%;
+  background: transparent;
+  border: none;
+  text-align: center;
+  font-size: 14px;
+}
+
+.process-input:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+</style>

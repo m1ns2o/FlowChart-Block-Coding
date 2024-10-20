@@ -12,51 +12,54 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue";
 
 const props = defineProps({
   name: {
     type: String,
-    default: '결정'
+    default: "결정",
   },
-})
+});
 
-const emit = defineEmits(['update:name', 'blur', 'enter'])
+const emit = defineEmits(["update:name", "blur", "enter"]);
 
-const inputValue = ref(props.name)
-const isDefaultValue = ref(props.name === '결정')
+const inputValue = ref(props.name);
+const isDefaultValue = ref(props.name === "결정");
 
-watch(() => props.name, (newValue) => {
-  inputValue.value = newValue
-  isDefaultValue.value = newValue === '결정'
-})
+watch(
+  () => props.name,
+  (newValue) => {
+    inputValue.value = newValue;
+    isDefaultValue.value = newValue === "결정";
+  }
+);
 
 watch(inputValue, (newValue) => {
-  emit('update:name', newValue)
-  isDefaultValue.value = newValue === '결정'
-})
+  emit("update:name", newValue);
+  isDefaultValue.value = newValue === "결정";
+});
 
 const onFocus = () => {
   if (isDefaultValue.value) {
-    inputValue.value = ''
+    inputValue.value = "";
   }
-}
+};
 
 const onBlur = () => {
-  if (inputValue.value.trim() === '') {
-    inputValue.value = '결정'
-    isDefaultValue.value = true
+  if (inputValue.value.trim() === "") {
+    inputValue.value = "결정";
+    isDefaultValue.value = true;
   }
-  emit('blur', inputValue.value)
-}
+  emit("blur", inputValue.value);
+};
 
 const onEnter = () => {
-  if (inputValue.value.trim() === '') {
-    inputValue.value = '결정'
-    isDefaultValue.value = true
+  if (inputValue.value.trim() === "") {
+    inputValue.value = "결정";
+    isDefaultValue.value = true;
   }
-  emit('enter', inputValue.value)
-}
+  emit("enter", inputValue.value);
+};
 </script>
 
 <style scoped>

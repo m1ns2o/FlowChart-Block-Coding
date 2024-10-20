@@ -12,51 +12,54 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue";
 
 const props = defineProps({
   name: {
     type: String,
-    default: '입력'
+    default: "입력",
   },
-})
+});
 
-const emit = defineEmits(['update:name', 'blur', 'enter'])
+const emit = defineEmits(["update:name", "blur", "enter"]);
 
-const inputValue = ref(props.name)
-const isDefaultValue = ref(props.name === '입력')
+const inputValue = ref(props.name);
+const isDefaultValue = ref(props.name === "입력");
 
-watch(() => props.name, (newValue) => {
-  inputValue.value = newValue
-  isDefaultValue.value = newValue === '입력'
-})
+watch(
+  () => props.name,
+  (newValue) => {
+    inputValue.value = newValue;
+    isDefaultValue.value = newValue === "입력";
+  }
+);
 
 watch(inputValue, (newValue) => {
-  emit('update:name', newValue)
-  isDefaultValue.value = newValue === '입력'
-})
+  emit("update:name", newValue);
+  isDefaultValue.value = newValue === "입력";
+});
 
 const onFocus = () => {
   if (isDefaultValue.value) {
-    inputValue.value = ''
+    inputValue.value = "";
   }
-}
+};
 
 const onBlur = () => {
-  if (inputValue.value.trim() === '') {
-    inputValue.value = '입력'
-    isDefaultValue.value = true
+  if (inputValue.value.trim() === "") {
+    inputValue.value = "입력";
+    isDefaultValue.value = true;
   }
-  emit('blur', inputValue.value)
-}
+  emit("blur", inputValue.value);
+};
 
 const onEnter = () => {
-  if (inputValue.value.trim() === '') {
-    inputValue.value = '입력'
-    isDefaultValue.value = true
+  if (inputValue.value.trim() === "") {
+    inputValue.value = "입력";
+    isDefaultValue.value = true;
   }
-  emit('enter', inputValue.value)
-}
+  emit("enter", inputValue.value);
+};
 </script>
 
 <style scoped>
@@ -70,12 +73,7 @@ const onEnter = () => {
   background-color: rgb(153, 210, 104);
   user-select: none;
   z-index: 1;
-  clip-path: polygon(
-    20px 0%,
-    100% 0%,
-    calc(100% - 20px) 100%,
-    0% 100%
-  );
+  clip-path: polygon(20px 0%, 100% 0%, calc(100% - 20px) 100%, 0% 100%);
   padding: 0 20px;
   box-sizing: border-box;
 }

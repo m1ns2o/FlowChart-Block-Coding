@@ -12,52 +12,55 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue";
 
 const props = defineProps({
   name: {
     type: String,
-    default: '프로세스'
+    default: "프로세스",
   },
-})
+});
 
-const emit = defineEmits(['update:name', 'blur', 'enter'])
+const emit = defineEmits(["update:name", "blur", "enter"]);
 
-const inputValue = ref(props.name)
-const isDefaultValue = ref(props.name === '프로세스')
+const inputValue = ref(props.name);
+const isDefaultValue = ref(props.name === "프로세스");
 
-watch(() => props.name, (newValue) => {
-  inputValue.value = newValue
-  isDefaultValue.value = newValue === '프로세스'
-})
+watch(
+  () => props.name,
+  (newValue) => {
+    inputValue.value = newValue;
+    isDefaultValue.value = newValue === "프로세스";
+  }
+);
 
 watch(inputValue, (newValue) => {
-  emit('update:name', newValue)
-  isDefaultValue.value = false
-})
+  emit("update:name", newValue);
+  isDefaultValue.value = false;
+});
 
 const onFocus = () => {
   if (isDefaultValue.value) {
-    inputValue.value = ''
-    isDefaultValue.value = false
+    inputValue.value = "";
+    isDefaultValue.value = false;
   }
-}
+};
 
 const onBlur = () => {
-  if (inputValue.value.trim() === '') {
-    inputValue.value = '프로세스'
-    isDefaultValue.value = true
+  if (inputValue.value.trim() === "") {
+    inputValue.value = "프로세스";
+    isDefaultValue.value = true;
   }
-  emit('blur', inputValue.value)
-}
+  emit("blur", inputValue.value);
+};
 
 const onEnter = () => {
-  if (inputValue.value.trim() === '') {
-    inputValue.value = '프로세스'
-    isDefaultValue.value = true
+  if (inputValue.value.trim() === "") {
+    inputValue.value = "프로세스";
+    isDefaultValue.value = true;
   }
-  emit('enter', inputValue.value)
-}
+  emit("enter", inputValue.value);
+};
 </script>
 
 <style scoped>
@@ -72,7 +75,7 @@ const onEnter = () => {
   border: 1px solid #999;
   user-select: none;
   z-index: 1;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .process {

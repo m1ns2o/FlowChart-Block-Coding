@@ -12,52 +12,55 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue";
 
 const props = defineProps({
   name: {
     type: String,
-    default: '변수'
+    default: "변수",
   },
-})
+});
 
-const emit = defineEmits(['update:name', 'blur', 'enter'])
+const emit = defineEmits(["update:name", "blur", "enter"]);
 
-const inputValue = ref(props.name)
-const isDefaultValue = ref(props.name === '변수')
+const inputValue = ref(props.name);
+const isDefaultValue = ref(props.name === "변수");
 
-watch(() => props.name, (newValue) => {
-  inputValue.value = newValue
-  isDefaultValue.value = newValue === '변수'
-})
+watch(
+  () => props.name,
+  (newValue) => {
+    inputValue.value = newValue;
+    isDefaultValue.value = newValue === "변수";
+  }
+);
 
 watch(inputValue, (newValue) => {
-  emit('update:name', newValue)
-  isDefaultValue.value = false
-})
+  emit("update:name", newValue);
+  isDefaultValue.value = false;
+});
 
 const onFocus = () => {
   if (isDefaultValue.value) {
-    inputValue.value = ''
-    isDefaultValue.value = false
+    inputValue.value = "";
+    isDefaultValue.value = false;
   }
-}
+};
 
 const onBlur = () => {
-  if (inputValue.value.trim() === '') {
-    inputValue.value = '변수'
-    isDefaultValue.value = true
+  if (inputValue.value.trim() === "") {
+    inputValue.value = "변수";
+    isDefaultValue.value = true;
   }
-  emit('blur', inputValue.value)
-}
+  emit("blur", inputValue.value);
+};
 
 const onEnter = () => {
-  if (inputValue.value.trim() === '') {
-    inputValue.value = '변수'
-    isDefaultValue.value = true
+  if (inputValue.value.trim() === "") {
+    inputValue.value = "변수";
+    isDefaultValue.value = true;
   }
-  emit('enter', inputValue.value)
-}
+  emit("enter", inputValue.value);
+};
 </script>
 
 <style scoped>
@@ -71,7 +74,7 @@ const onEnter = () => {
   background-color: #fff;
   user-select: none;
   z-index: 1;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .variable {
