@@ -29,6 +29,7 @@
             width="300"
             height="360"
             elevation="1"
+            href="/class"
           >
             <v-card-item
               class="text-center d-flex flex-column align-center justify-center"

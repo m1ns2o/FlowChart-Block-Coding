@@ -44,13 +44,16 @@
   
   <script setup lang="ts">
   import { ref } from 'vue'
-  
+  import { useRouter } from 'vue-router'
   const formValid = ref(false)
   const classroomNumber = ref('')
   const name = ref('')
   
+  const router = useRouter()
+
+  
   const classroomRules = [
-    (v: string) => !!v || '클래스룸 번호는 필수입니다.',
+    (v: string) => !!v || '클래스룸 번호를 입력해주세요.',
     (v: string) => /^\d+$/.test(v) || '클래스룸 번호는 숫자만 입력 가능합니다.'
   ]
   
@@ -62,7 +65,7 @@
   const submitForm = () => {
     if (formValid.value) {
       console.log('Form submitted:', { classroomNumber: classroomNumber.value, name: name.value })
-      // 여기에 폼 제출 로직을 추가하세요
+      router.push(`/problemlist`)
     }
   }
   </script>
