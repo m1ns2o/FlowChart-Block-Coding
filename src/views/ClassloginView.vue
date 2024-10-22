@@ -54,7 +54,7 @@
   
   const classroomRules = [
     (v: string) => !!v || '클래스룸 번호를 입력해주세요.',
-    (v: string) => /^\d+$/.test(v) || '클래스룸 번호는 숫자만 입력 가능합니다.'
+    // (v: string) => /^\d+$/.test(v) || '클래스룸 번호는 숫자만 입력 가능합니다.'
   ]
   
   const nameRules = [

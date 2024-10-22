@@ -137,17 +137,17 @@
   }
   
   // API 호출 함수 (실제 구현은 별도로 해야 함)
-  const fetchProblem = async (id: string) => {
-    // API 호출 로직
-  }
+//   const fetchProblem = async (id: string) => {
+//     // API 호출 로직
+//   }
   
-  const createProblem = async (data: any) => {
-    // API 호출 로직
-  }
+//   const createProblem = async (data: any) => {
+//     // API 호출 로직
+//   }
   
-  const updateProblem = async (id: string, data: any) => {
-    // API 호출 로직
-  }
+//   const updateProblem = async (id: string, data: any) => {
+//     // API 호출 로직
+//   }
   </script>
   
   <style scoped>

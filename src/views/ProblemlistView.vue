@@ -3,7 +3,7 @@
       <v-container>
         <div class="aspect-ratio-wrapper">
           <div class="aspect-ratio-container">
-            <v-card class="card-menu" elevation="3">
+            <v-card class="card-menu" elevation="1" rounded="lg" >
               <v-card-title class="text-h5 font-weight-bold indigo--text text--darken-2">문제 리스트</v-card-title>
               <v-card-text>
                 <v-list>
@@ -30,7 +30,7 @@
   </template>
   
   <script setup lang="ts">
-  import { ref } from 'vue'
+  import { ref, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
   
   const router = useRouter()
@@ -43,6 +43,15 @@
     { id: 5, title: "동적 프로그래밍" },
   ])
   
+  onMounted(() => {
+    // try {
+    //     const response = await fetchProblem(route.params.id as string)
+    //   } catch (error) {
+    //     console.error('Failed to fetch problem:', error)
+    //     // 에러 처리 로직 (예: 에러 메시지 표시)
+    //   }
+  })
+
   const navigateToProblem = (problemId: number) => {
     router.push(`/problem/${problemId}`)
   }

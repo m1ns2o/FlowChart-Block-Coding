@@ -3,7 +3,7 @@
       <v-container>
         <div class="aspect-ratio-wrapper">
           <div class="aspect-ratio-container">
-            <v-card class="card-menu" elevation="3">
+            <v-card class="card-menu" elevation="1" rounded="lg">
               <v-card-title class="text-h5 font-weight-bold indigo--text text--darken-2">
                 문제 리스트
               </v-card-title>
@@ -22,9 +22,9 @@
                         </div>
                         <div>
                           <!-- 수정 버튼 -->
-                          <!-- <v-btn @click="editProblem(problem)" elevation="0" variant="plain" class="action-btn">
+                          <v-btn @click="editProblem(problem)" elevation="0" variant="plain" class="action-btn">
                             <v-icon left>mdi-pencil</v-icon> 
-                          </v-btn> -->
+                          </v-btn>
                           <!-- 삭제 버튼 -->
                           <v-btn @click="openDeleteDialog(problem.id)" elevation="0" variant="plain" class="action-btn" color="red">
                             <v-icon left>mdi-delete</v-icon>
@@ -36,7 +36,7 @@
                 </v-list>
               </v-card-text>
               <v-card-actions>
-                <v-btn block color="indigo" text @click="addNewProblem">
+                <v-btn block color="indigo" @click="addNewProblem">
                   <v-icon left>mdi-plus</v-icon> 새 문제 추가
                 </v-btn>
               </v-card-actions>
@@ -56,8 +56,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="closeEditDialog">취소</v-btn>
-            <v-btn color="blue darken-1" text @click="save">저장</v-btn>
+            <v-btn color="blue darken-1" @click="closeEditDialog">취소</v-btn>
+            <v-btn color="blue darken-1" @click="save">저장</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -69,8 +69,8 @@
           <v-card-text>이 문제를 삭제하시겠습니까?</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="closeDeleteDialog">취소</v-btn>
-            <v-btn color="red darken-1" text @click="deleteProblem">삭제</v-btn>
+            <v-btn color="blue darken-1" @click="closeDeleteDialog">취소</v-btn>
+            <v-btn color="red darken-1" @click="deleteProblem">삭제</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -78,8 +78,9 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed } from 'vue'
+  import { ref, computed, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
+  import axios from 'axios'
   
   const router = useRouter()
   
@@ -100,6 +101,10 @@
   const formTitle = computed(() => {
     return editedIndex.value === -1 ? '새 문제 추가' : '문제 수정'
   })
+
+  onMounted(() => {
+         
+})
   
   const navigateToProblem = (problemId: number) => {
     router.push(`/problem/${problemId}`)
