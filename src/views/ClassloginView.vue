@@ -43,13 +43,38 @@
   </template>
   
   <script setup lang="ts">
-  import { ref } from 'vue'
+  import { ref, onBeforeMount } from 'vue'
   import { useRouter } from 'vue-router'
+  import { useGlobalValueCheck } from '../composables/useGlobalValueCheck'; // Composable 함수 가져오기
+import axios from 'axios';
+
+// Composable 함수 호출
+  const { checkGlobalValues } = useGlobalValueCheck();
   const formValid = ref(false)
   const classroomNumber = ref('')
   const name = ref('')
   
   const router = useRouter()
+
+  interface CookieData {
+    classnum: string;
+    name: string;
+  }
+
+const setCookies = (classnum: string, name: string): void => {
+ try {
+   const expirationDate = new Date();
+   expirationDate.setTime(expirationDate.getTime() + (60 * 60 * 1000)); // 1시간
+
+   const cookieString = `expires=${expirationDate.toUTCString()}; path=/; secure; samesite=strict`;
+   document.cookie = `classnum=${encodeURIComponent(classnum)}; ${cookieString}`;
+   document.cookie = `name=${encodeURIComponent(name)}; ${cookieString}`;
+   
+   console.log('쿠키 저장 완료. 만료 시간:', expirationDate.toLocaleString());
+ } catch (error) {
+   console.error('쿠키 저장 중 오류 발생:', error);
+ }
+};
 
   
   const classroomRules = [
@@ -62,12 +87,36 @@
     (v: string) => v.length <= 20 || '이름은 10자 이내로 입력해주세요.'
   ]
   
-  const submitForm = () => {
-    if (formValid.value) {
-      console.log('Form submitted:', { classroomNumber: classroomNumber.value, name: name.value })
-      router.push(`/problemlist`)
+  const submitForm = async () => {  // async 추가
+  if (formValid.value) {
+    try {
+      const response = await axios.post('http://127.0.0.1:8080/users', {  // 전체 URL 사용
+        classnum: classroomNumber.value, 
+        name: name.value
+      }, {
+        headers: {
+          'Content-Type': 'application/json'  // 헤더 추가
+        }
+      });
+      
+      console.log('Success:', response.data);
+      setCookies(classroomNumber.value, name.value);
+      router.push('/problemlist');  // 성공 시 리다이렉트
+      
+    } catch (error) {
+      console.error('Error:', error.response?.data);  // 에러 처리 추가
     }
   }
+  }
+
+  onBeforeMount(()=>{
+    if(checkGlobalValues()){
+      router.push(`/problemlist`)
+    }else{
+      console.log('qwer');
+    }
+  })
+  
   </script>
   
   <style scoped>

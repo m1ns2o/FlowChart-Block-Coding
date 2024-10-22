@@ -55,9 +55,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+
 
 const formValid = ref(false)
 const classroomNumber = ref('')
@@ -97,7 +98,7 @@ const submitForm = async () => {
         // 토큰 저장
         localStorage.setItem('token', response.data.token)
         // axios 헤더 설정 (main.ts에서 이미 Bearer가 추가되어 있으므로 토큰만 설정)
-        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
+        axios.defaults.headers.common['Authorization'] = `${response.data.token}`
         
         // class 정보도 저장
         localStorage.setItem('class_id', response.data.id)
@@ -121,7 +122,7 @@ const submitForm = async () => {
 }
 
 // 컴포넌트 마운트 시 토큰 체크
-onMounted(() => {
+onBeforeMount(() => {
   if (hasToken()) {
     router.push('/editproblemlist')
   }

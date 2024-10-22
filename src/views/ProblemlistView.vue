@@ -36,11 +36,7 @@
   const router = useRouter()
   
   const problems = ref([
-    { id: 1, title: "두 수의 합" },
-    { id: 2, title: "배열의 최대값" },
-    { id: 3, title: "문자열 뒤집기" },
-    { id: 4, title: "이진 탐색" },
-    { id: 5, title: "동적 프로그래밍" },
+    
   ])
   
   onMounted(() => {

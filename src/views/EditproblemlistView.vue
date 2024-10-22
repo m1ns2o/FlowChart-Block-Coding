@@ -81,15 +81,11 @@
   import { ref, computed, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
   import axios from 'axios'
+// import { setAuthToken } from '../plugins/axios';
   
   const router = useRouter()
   
   const problems = ref([
-    { id: 1, title: "두 수의 합" },
-    { id: 2, title: "배열의 최대값" },
-    { id: 3, title: "문자열 뒤집기" },
-    { id: 4, title: "이진 탐색" },
-    { id: 5, title: "동적 프로그래밍" },
   ])
   
   const editDialog = ref(false)
@@ -103,8 +99,62 @@
   })
 
   onMounted(() => {
-         
-})
+    // setAuthToken();
+    console.log(axios.defaults.headers.common['Authorization'])
+    getProblemlist();
+  })
+
+  const getProblemlist = async () => {
+    const class_id = localStorage.getItem('class_id')
+    const response = await axios.get(`classes/${class_id}`)
+    console.log(response.data)
+    // problems.value에 response.data.Problems 배열을 직접 할당
+    problems.value = response.data.Problems.map((problem: { ID: number; Title: string; }) => ({
+        id: problem.ID,
+        title: problem.Title
+    }))
+}
+//   const getProblemlist = async () => {
+//     try {
+//         const token = localStorage.getItem('token');
+//         const class_id = localStorage.getItem('class_id');
+        
+//         // 디버깅을 위한 로그
+//         console.log('Token:', token);
+//         console.log('Class ID:', class_id);
+//         console.log('Current Authorization Header:', axios.defaults.headers.common['Authorization']);
+
+//         // 토큰이 없는 경우 처리
+//         if (!token) {
+//             console.error('No token found in localStorage');
+//             // 로그인 페이지로 리다이렉트 등의 처리
+//             router.push('/login');
+//             return;
+//         }
+
+//         const response = await axios.get(`classes/`, {
+//             headers: {
+//                 'Authorization': `Bearer ${token}`,
+//                 'Accept': 'application/json',
+//                 'Content-Type': 'application/json'
+//             }
+//         });
+        
+//         problems.value = response.data;
+//     } catch (error) {
+//         console.error('Error details:', {
+//             status: error.response?.status,
+//             data: error.response?.data,
+//             headers: error.response?.headers
+//         });
+        
+//         if (error.response?.status === 401) {
+//             // 토큰 만료 시 처리
+//             localStorage.removeItem('token');
+//             router.push('/login');
+//         }
+//     }
+// }
   
   const navigateToProblem = (problemId: number) => {
     router.push(`/problem/${problemId}`)
@@ -148,9 +198,11 @@
     closeEditDialog()
   }
   
-  const deleteProblem = () => {
+  const deleteProblem = async () => {
     const index = problems.value.findIndex(problem => problem.id === deletingItemId.value)
     problems.value.splice(index, 1)
+    console.log(deletingItemId.value)
+    const response = await axios.delete(`problems/${deletingItemId.value}`)
     closeDeleteDialog()
   }
   </script>

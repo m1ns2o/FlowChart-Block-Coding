@@ -14,6 +14,9 @@ const app = createApp(App)
 // 전역 property로 등록
 app.config.globalProperties.$axios = axios
 
+app.config.globalProperties.$classnum = ''
+app.config.globalProperties.$name = ''
+
 const vuetify = createVuetify({
     components,
     directives,

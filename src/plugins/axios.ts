@@ -9,7 +9,7 @@ axios.defaults.baseURL = 'http://127.0.0.1:8080/'
 // 토큰 관리
 const setAuthToken = (token: string | null) => {
   if (token) {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    axios.defaults.headers.common['Authorization'] = `${token}`
     localStorage.setItem('token', token)
   } else {
     delete axios.defaults.headers.common['Authorization']
