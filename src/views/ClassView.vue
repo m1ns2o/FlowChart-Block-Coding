@@ -1,65 +1,81 @@
 <template>
   <div class="main">
-    <v-container class="fill-height">
-      <v-row justify="center" align="center">
-        <v-col cols="12" sm="8" md="6">
-          <v-sheet class="pa-6" rounded="lg" elevation="1">
-            <v-form @submit.prevent="submitForm" v-model="formValid">
-              <v-text-field
-                v-model="classroomNumber"
-                :rules="classroomRules"
-                label="클래스룸 번호"
-                required
-                variant="outlined"
-                bg-color="white"
-                color="indigo"
-                label-color="indigo-darken-2"
-              ></v-text-field>
-              <v-text-field
-                v-model="password"
-                :rules="passwordRules"
-                label="비밀번호"
-                required
-                variant="outlined"
-                bg-color="white"
-                color="indigo"
-                label-color="indigo-darken-2"
-                :type="showPassword ? 'text' : 'password'"
-                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                @click:append-inner="showPassword = !showPassword"
-              ></v-text-field>
-              <v-btn 
-                class="mt-4" 
-                type="submit" 
-                block 
-                color="indigo"
-                :disabled="!formValid || isLoading"
-                :loading="isLoading"
+    <v-overlay
+      :model-value="initialLoading"
+      persistent
+      class="d-flex align-center justify-center"
+      scrim="#f5f5f5"
+    >
+      <v-progress-circular
+        color="indigo"
+        indeterminate
+        size="64"
+        width="6"
+      ></v-progress-circular>
+    </v-overlay>
+
+    <template v-if="!initialLoading">
+      <v-container class="fill-height">
+        <v-row justify="center" align="center">
+          <v-col cols="12" sm="8" md="6">
+            <v-sheet class="pa-6" rounded="lg" elevation="1">
+              <v-form @submit.prevent="submitForm" v-model="formValid">
+                <v-text-field
+                  v-model="classroomNumber"
+                  :rules="classroomRules"
+                  label="클래스룸 번호"
+                  required
+                  variant="outlined"
+                  bg-color="white"
+                  color="indigo"
+                  label-color="indigo-darken-2"
+                ></v-text-field>
+                <v-text-field
+                  v-model="password"
+                  :rules="passwordRules"
+                  label="비밀번호"
+                  required
+                  variant="outlined"
+                  bg-color="white"
+                  color="indigo"
+                  label-color="indigo-darken-2"
+                  :type="showPassword ? 'text' : 'password'"
+                  :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append-inner="showPassword = !showPassword"
+                ></v-text-field>
+                <v-btn 
+                  class="mt-4" 
+                  type="submit" 
+                  block 
+                  color="indigo"
+                  :disabled="!formValid || isLoading"
+                  :loading="isLoading"
+                >
+                  입장
+                </v-btn>
+              </v-form>
+              <v-snackbar
+                v-model="showError"
+                color="error"
+                timeout="3000"
+                location="top"
               >
-                입장
-              </v-btn>
-            </v-form>
-            <v-snackbar
-              v-model="showError"
-              color="error"
-              timeout="3000"
-              location="top"
-            >
-              {{ errorMessage }}
-            </v-snackbar>
-          </v-sheet>
-        </v-col>
-      </v-row>
-    </v-container>
+                {{ errorMessage }}
+              </v-snackbar>
+            </v-sheet>
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
-
+const initialLoading = ref(true)
 const formValid = ref(false)
 const classroomNumber = ref('')
 const password = ref('')
@@ -79,9 +95,24 @@ const passwordRules = [
   (v: string) => v.length >= 8 || '비밀번호는 최소 8자 이상이어야 합니다.'
 ]
 
-// 토큰 존재 여부 확인
 const hasToken = (): boolean => {
   return !!localStorage.getItem('token')
+}
+
+const checkAuthAndRedirect = async () => {
+  try {
+    if (hasToken()) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await router.push('/editproblemlist')
+    }
+  } catch (error) {
+    console.error('Redirection error:', error)
+  } finally {
+    // 1초 후에 로딩 상태를 해제하여 로딩 애니메이션이 보이도록 함
+    setTimeout(() => {
+      initialLoading.value = false
+    }, 500)
+  }
 }
 
 const submitForm = async () => {
@@ -95,12 +126,9 @@ const submitForm = async () => {
       })
       
       if (response.data.token) {
-        // 토큰 저장
         localStorage.setItem('token', response.data.token)
-        // axios 헤더 설정 (main.ts에서 이미 Bearer가 추가되어 있으므로 토큰만 설정)
         axios.defaults.headers.common['Authorization'] = `${response.data.token}`
         
-        // class 정보도 저장
         localStorage.setItem('class_id', response.data.id)
         localStorage.setItem('classnum', response.data.classnum)
         
@@ -121,11 +149,9 @@ const submitForm = async () => {
   }
 }
 
-// 컴포넌트 마운트 시 토큰 체크
-onBeforeMount(() => {
-  if (hasToken()) {
-    router.push('/editproblemlist')
-  }
+// onBeforeMount 대신 onMounted 사용
+onMounted(() => {
+  checkAuthAndRedirect()
 })
 </script>
 
