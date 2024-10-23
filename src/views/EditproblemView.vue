@@ -105,8 +105,8 @@
         const response = await axios.get(`problems/${id}`)
         title.value = response.data.Title
         content.value = response.data.Content
-        testInput.value = response.data.TestCaseInput
-        testOutput.value = response.data.TestCaseOutput
+        testInput.value = response.data.TestcaseInput
+        testOutput.value = response.data.TestcaseOutput
         console.log(response.data)
       } catch (error) {
         console.error('Failed to fetch problem:', error)
@@ -117,18 +117,32 @@
   
   const submitForm = async () => {
     if (formValid.value) {
-      const problemData = {
-        title: title.value,
-        content: content.value,
-        testInput: testInput.value,
-        testOutput: testOutput.value
-      }
-  
+      // const problemData = {
+      //   Title: title.value,
+      //   Content: content.value,
+      //   TestcaseInput: testInput.value,
+      //   TestcaseOutput: testOutput.value
+      // }
       try {
         if (isEditMode.value) {
-          await updateProblem(route.params.id as string, problemData)
+          const problemData = {
+            Title: title.value,
+            Content: content.value,
+            TestcaseInput: testInput.value,
+            TestcaseOutput: testOutput.value
+          }
+          await axios.put(`problems/${id}`, problemData)
         } else {
-          await createProblem(problemData)
+          const ClassID = await localStorage.getItem('class_id')
+          console.log(ClassID)
+          const problemData = {
+            Title: title.value,
+            Content: content.value,
+            TestcaseInput: testInput.value,
+            TestcaseOutput: testOutput.value,
+            ClassID : Number(ClassID)
+          }
+          await axios.post(`problems`, problemData)
         }
         // 성공 메시지 표시 및 리다이렉트
         router.push('/problems')
@@ -140,9 +154,9 @@
   }
   
   // API 호출 함수 (실제 구현은 별도로 해야 함)
-  const fetchProblem = async (id: string) => {
-    // API 호출 로직
-  }
+  // const fetchProblem = async (id: string) => {
+  //   // API 호출 로직
+  // }
   
   // const createProblem = async (data: any) => {
   //   // API 호출 로직
