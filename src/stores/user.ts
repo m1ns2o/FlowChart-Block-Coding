@@ -1,15 +1,15 @@
-// stores/user.ts
+// src/stores/user.ts
 import { defineStore } from 'pinia'
 
 interface UserState {
-  classnum: string | null
-  name: string | null
+  classnum: string | null;
+  name: string | null;
 }
 
 // 쿠키 관련 타입 정의
 interface CookieData {
-  classnum: string
-  name: string
+  classnum: string;
+  name: string;
 }
 
 // 쿠키에서 값을 가져오는 함수
@@ -35,27 +35,27 @@ const getCookie = (): CookieData | null => {
   }
 };
 
-export const useUserStore = defineStore('user', {
+// store 정의
+export const useUserStore = defineStore({
+  id: 'user', // id 추가
+
   state: (): UserState => ({
     classnum: null,
     name: null
   }),
 
   getters: {
-    hasUserInfo: (state): boolean => {
-      return !!state.classnum && !!state.name;
+    hasUserInfo(): boolean {
+      return !!this.classnum && !!this.name;
     }
   },
 
   actions: {
-    // 쿠키에서 값을 확인하고 store에 설정하는 action
     checkAndSetUserInfo(): boolean {
-      // 이미 store에 값이 있는 경우
       if (this.classnum && this.name) {
         return true;
       }
 
-      // 쿠키에서 값을 가져오기
       const cookieData = getCookie();
       
       if (cookieData) {
@@ -67,16 +67,14 @@ export const useUserStore = defineStore('user', {
       return false;
     },
 
-    // 값을 직접 설정하는 action
-    setUserInfo(classnum: string, name: string) {
+    setUserInfo(classnum: string, name: string): void {
       this.classnum = classnum;
       this.name = name;
     },
 
-    // 상태 초기화
-    resetUserInfo() {
+    resetUserInfo(): void {
       this.classnum = null;
       this.name = null;
     }
   }
-})
+});

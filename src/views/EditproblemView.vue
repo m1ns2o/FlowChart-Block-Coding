@@ -69,6 +69,7 @@
   <script setup lang="ts">
   import { ref, onMounted, computed } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
+  import axios from 'axios';
   
   const formValid = ref(false)
   const title = ref('')
@@ -80,6 +81,7 @@
   const router = useRouter()
   
   const isEditMode = computed(() => !!route.params.id)
+  const id = route.params.id as string
   
   const titleRules = [
     (v: string) => !!v || '제목을 입력해주세요.',
@@ -100,11 +102,12 @@
     if (isEditMode.value) {
       // API를 통해 문제 데이터를 불러오는 로직
       try {
-        const response = await fetchProblem(route.params.id as string)
-        title.value = response.title
-        content.value = response.content
-        testInput.value = response.testInput
-        testOutput.value = response.testOutput
+        const response = await axios.get(`problems/${id}`)
+        title.value = response.data.Title
+        content.value = response.data.Content
+        testInput.value = response.data.TestCaseInput
+        testOutput.value = response.data.TestCaseOutput
+        console.log(response.data)
       } catch (error) {
         console.error('Failed to fetch problem:', error)
         // 에러 처리 로직 (예: 에러 메시지 표시)
@@ -137,17 +140,17 @@
   }
   
   // API 호출 함수 (실제 구현은 별도로 해야 함)
-//   const fetchProblem = async (id: string) => {
-//     // API 호출 로직
-//   }
+  const fetchProblem = async (id: string) => {
+    // API 호출 로직
+  }
   
-//   const createProblem = async (data: any) => {
-//     // API 호출 로직
-//   }
+  // const createProblem = async (data: any) => {
+  //   // API 호출 로직
+  // }
   
-//   const updateProblem = async (id: string, data: any) => {
-//     // API 호출 로직
-//   }
+  // const updateProblem = async (id: string, data: any) => {
+  //   // API 호출 로직
+  // }
   </script>
   
   <style scoped>

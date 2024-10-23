@@ -46,7 +46,7 @@
       </v-container>
   
       <!-- 문제 추가/수정 다이얼로그 -->
-      <v-dialog v-model="editDialog" max-width="500px">
+      <!-- <v-dialog v-model="editDialog" max-width="500px">
         <v-card>
           <v-card-title>
             <span class="text-h5">{{ formTitle }}</span>
@@ -61,7 +61,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-  
+   -->
       <!-- 삭제 확인 다이얼로그 -->
       <v-dialog v-model="deleteDialog" max-width="300px">
         <v-card>
@@ -161,9 +161,11 @@
   }
   
   const addNewProblem = () => {
-    editedIndex.value = -1
-    editedItem.value = { id: 0, title: '' }
-    editDialog.value = true
+    // editedIndex.value = -1
+    // editedItem.value = { id: 0, title: '' }
+    // editDialog.value = true
+    console.log("oeqwr")
+    router.push('/editproblem');
   }
   
   const editProblem = (item: { id: number; title: string }) => {

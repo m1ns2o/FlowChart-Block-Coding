@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useGlobalValueCheck } from '../composables/useGlobalValueCheck'
+import { useUserStore } from '../stores/user'
 import axios from 'axios'
 
 const initialLoading = ref(true)
@@ -82,7 +82,7 @@ const showError = ref(false)
 const errorMessage = ref('')
 
 const router = useRouter()
-const { checkGlobalValues } = useGlobalValueCheck()
+const userStore = useUserStore()
 
 const classroomRules = [
   (v: string) => !!v || '클래스룸 번호를 입력해주세요.',
@@ -93,8 +93,12 @@ const nameRules = [
   (v: string) => v.length <= 20 || '이름은 10자 이내로 입력해주세요.'
 ]
 
-const setCookies = (classnum: string, name: string): void => {
+const setCookiesAndStore = (classnum: string, name: string): void => {
   try {
+    // Store에 사용자 정보 설정
+    userStore.setUserInfo(classnum, name)
+    
+    // 쿠키 설정
     const expirationDate = new Date()
     expirationDate.setTime(expirationDate.getTime() + (60 * 60 * 1000)) // 1시간
 
@@ -102,15 +106,16 @@ const setCookies = (classnum: string, name: string): void => {
     document.cookie = `classnum=${encodeURIComponent(classnum)}; ${cookieString}`
     document.cookie = `name=${encodeURIComponent(name)}; ${cookieString}`
     
-    console.log('쿠키 저장 완료. 만료 시간:', expirationDate.toLocaleString())
+    console.log('사용자 정보 저장 완료. 만료 시간:', expirationDate.toLocaleString())
   } catch (error) {
-    console.error('쿠키 저장 중 오류 발생:', error)
+    console.error('사용자 정보 저장 중 오류 발생:', error)
   }
 }
 
 const checkAuthAndRedirect = async () => {
   try {
-    if (checkGlobalValues()) {
+    const hasUserInfo = userStore.checkAndSetUserInfo()
+    if (hasUserInfo) {
       await new Promise(resolve => setTimeout(resolve, 500));
       await router.push('/problemlist')
     }
@@ -138,7 +143,7 @@ const submitForm = async () => {
       })
       
       console.log('Success:', response.data)
-      setCookies(classroomNumber.value, name.value)
+      setCookiesAndStore(classroomNumber.value, name.value)
       router.push('/problemlist')
       
     } catch (error: any) {

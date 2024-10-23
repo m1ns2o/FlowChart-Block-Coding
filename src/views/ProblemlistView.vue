@@ -30,27 +30,51 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, getCurrentInstance } from 'vue'
   import { useRouter } from 'vue-router'
-  
+  import axios from 'axios'; 
+  import { useUserStore } from '../stores/user'
+  import { storeToRefs } from 'pinia'
+  import { useAuthCheck } from '../composables/useAuthCheck'
+
+  const { checkAuth } = useAuthCheck()
+
+  const userStore = useUserStore()
+  const { classnum, name } = storeToRefs(userStore)
   const router = useRouter()
-  
-  const problems = ref([
-    
-  ])
-  
-  onMounted(() => {
-    // try {
-    //     const response = await fetchProblem(route.params.id as string)
-    //   } catch (error) {
-    //     console.error('Failed to fetch problem:', error)
-    //     // 에러 처리 로직 (예: 에러 메시지 표시)
-    //   }
+  const problems = ref([])
+
+  onMounted(async () => {
+    // 인증 체크
+    if (!checkAuth()) return
+
+    // 문제 목록 가져오기
+    try {
+      await getProblemlist()
+    } catch (error) {
+      console.error('문제 목록을 가져오는데 실패했습니다:', error)
+    }
   })
 
-  const navigateToProblem = (problemId: number) => {
-    router.push(`/problem/${problemId}`)
+
+const getProblemlist = async () => {
+  try {
+    const response = await axios.get(`classes/number/${classnum.value}`)
+    console.log('API 응답:', response.data)
+    
+    problems.value = response.data.Problems.map((problem: { ID: number; Title: string; }) => ({
+      id: problem.ID,
+      title: problem.Title
+    }))
+  } catch (error) {
+    console.error('문제 목록 가져오기 실패:', error)
+    throw error
   }
+}
+
+const navigateToProblem = (problemId: number) => {
+  router.push(`/problem/${problemId}`)
+}
   </script>
   
   <style scoped>
