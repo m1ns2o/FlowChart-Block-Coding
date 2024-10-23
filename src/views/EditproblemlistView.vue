@@ -14,19 +14,19 @@
                     :key="problem.id"
                     class="mb-2"
                   >
-                    <v-card class="problem-card" elevation="0" outlined>
+                    <v-card class="problem-card" elevation="0" outlined @click="navigateToProblem(problem.id)">
                       <v-card-text class="d-flex align-center justify-space-between">
-                        <div class="d-flex align-center" @click="navigateToProblem(problem.id)">
+                        <div class="d-flex align-center">
                           <span class="problem-number mr-3 indigo--text text--darken-2">{{ index + 1 }}</span>
                           <span class="problem-title">{{ problem.title }}</span>
                         </div>
                         <div>
                           <!-- 수정 버튼 -->
-                          <v-btn @click="editProblem(problem)" elevation="0" variant="plain" class="action-btn">
+                          <v-btn @click="editProblem(problem.id)" @click.stop elevation="0" variant="plain" class="action-btn">
                             <v-icon left>mdi-pencil</v-icon> 
                           </v-btn>
                           <!-- 삭제 버튼 -->
-                          <v-btn @click="openDeleteDialog(problem.id)" elevation="0" variant="plain" class="action-btn" color="red">
+                          <v-btn @click="openDeleteDialog(problem.id)" @click.stop elevation="0" variant="plain" class="action-btn" color="red">
                             <v-icon left>mdi-delete</v-icon>
                           </v-btn>
                         </div>
@@ -164,14 +164,14 @@
     // editedIndex.value = -1
     // editedItem.value = { id: 0, title: '' }
     // editDialog.value = true
-    console.log("oeqwr")
     router.push('/editproblem');
   }
   
-  const editProblem = (item: { id: number; title: string }) => {
-    editedIndex.value = problems.value.findIndex(problem => problem.id === item.id)
-    editedItem.value = Object.assign({}, item)
-    editDialog.value = true
+  const editProblem = (problemId: number) => {
+    router.push(`/editproblem/${problemId}`)
+    // editedIndex.value = problems.value.findIndex(problem => problem.id === item.id)
+    // editedItem.value = Object.assign({}, item)
+    // editDialog.value = true
   }
   
   const openDeleteDialog = (id: number) => {
