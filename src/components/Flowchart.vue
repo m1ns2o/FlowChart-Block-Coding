@@ -1,23 +1,29 @@
 <template>
   <div class="main">
-    <div class="components-list">
-      <!-- <div class="nav_style"></div> -->
-      <div
-        v-for="component in flowchartComponents"
-        :key="component.type"
-        draggable="true"
-        @dragstart="onDragStart($event, component)"
-        class="draggable-component"
-      >
-        <component :is="getComponent(component.type)" :name="component.name" />
+    <div class="components-list bg-indigo-lighten-5 pa-4 rounded-lg">
+      <div class="components-header text-h6 mb-4 text-indigo-darken-2">Components</div>
+      <div class="components-container">
+        <div
+          v-for="component in flowchartComponents"
+          :key="component.type"
+          draggable="true"
+          @dragstart="onDragStart($event, component)"
+          class="draggable-component mb-2 pa-2 rounded hover:bg-indigo-lighten-4 transition-colors"
+        >
+          <component :is="getComponent(component.type)" :name="component.name" />
+        </div>
       </div>
     </div>
     
     <div class="page">
-      <!-- <terminal :toggle="terminal_state"/> -->
       <Terminal ref="terminalRef"/>
-      <!-- <button >RUN</button> -->
-      <v-btn @click="runCompile(sortedCanvasItems)">
+      <v-btn
+        color="indigo-darken-2"
+        class="text-white px-6 mb-4"
+        elevation="2"
+        @click="runCompile(sortedCanvasItems)"
+      >
+        <v-icon left class="mr-2">mdi-play</v-icon>
         RUN
       </v-btn>
       <div
@@ -30,40 +36,41 @@
         @mouseup="stopDrag"
         @mouseleave="stopDrag"
       >
-      <svg class="connections" :width="canvasSize.width" :height="canvasSize.height">
-  <defs>
-    <marker
-      id="arrowhead"
-      markerWidth="10"
-      markerHeight="7"
-      refX="9"
-      refY="3.5"
-      orient="auto"
-    >
-      <polygon points="0 0, 10 3.5, 0 7" fill="#007bff" />
-    </marker>
-  </defs>
-  <path
-    v-for="(connection, index) in connections"
-    :key="index"
-    :d="connection.path"
-    fill="none"
-    :stroke="connection.color"
-    stroke-width="2"
-    marker-end="url(#arrowhead)"
-  />
-  <g v-for="(connection, index) in loopVisualConnections" :key="`loop-${index}`">
-    <path
-      :d="connection.path"
-      fill="none"
-      :stroke="connection.color"
-      stroke-width="2"
-      :stroke-dasharray="connection.style === 'dashed' ? '5,5' : ''"
-    />
-    <circle :cx="connection.startX" :cy="connection.startY" r="4" :fill="connection.color" />
-    <circle :cx="connection.endX" :cy="connection.endY" r="4" :fill="connection.color" />
-  </g>
-</svg>
+        <!-- SVG 및 기타 캔버스 내용은 동일하게 유지 -->
+        <svg class="connections" :width="canvasSize.width" :height="canvasSize.height">
+          <defs>
+            <marker
+              id="arrowhead"
+              markerWidth="10"
+              markerHeight="7"
+              refX="9"
+              refY="3.5"
+              orient="auto"
+            >
+              <polygon points="0 0, 10 3.5, 0 7" fill="#007bff" />
+            </marker>
+          </defs>
+          <path
+            v-for="(connection, index) in connections"
+            :key="index"
+            :d="connection.path"
+            fill="none"
+            :stroke="connection.color"
+            stroke-width="2"
+            marker-end="url(#arrowhead)"
+          />
+          <g v-for="(connection, index) in loopVisualConnections" :key="`loop-${index}`">
+            <path
+              :d="connection.path"
+              fill="none"
+              :stroke="connection.color"
+              stroke-width="2"
+              :stroke-dasharray="connection.style === 'dashed' ? '5,5' : ''"
+            />
+            <circle :cx="connection.startX" :cy="connection.startY" r="4" :fill="connection.color" />
+            <circle :cx="connection.endX" :cy="connection.endY" r="4" :fill="connection.color" />
+          </g>
+        </svg>
         <div
           v-for="(item, index) in canvasItems"
           :key="index"
@@ -81,7 +88,7 @@
       </div>
     </div>
   </div>
-</template>
+ </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, defineProps, defineEmits, nextTick } from 'vue'
@@ -731,82 +738,97 @@ const terminalRef = ref<InstanceType<typeof Terminal> | null>(null);
 
 <style scoped>
 .main {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  overflow: hidden;
-}
-
-.nav_style{
-  background-color: #B1C9EF;
-  width: 100%;
-  height: 5%;
-  margin: 0;
-  padding: 0;
-  /* padding-bottom: 50px; */
+ width: 100%;
+ height: 100vh;
+ display: flex;
+ overflow: hidden;
+ padding: 20px;
 }
 
 .components-list {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  gap: 50px;
-  width: 300px;
-  align-items: center;
-  /* align-content: center; */
-  overflow-y: auto;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-  /* padding-bottom: 30px; */
-  padding: 30px;
+ min-width: 270px;
+ position: relative;
+ display: flex;
+ flex-direction: column;
+ height: calc(100vh - 80px);
+ border: 1px solid #e0e0e0;
+ box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+ /* background-color: rgb(237, 238, 255); */
+ background-color: rgb(237, 238, 255);
+ padding: 0; /* 패딩 제거 */
+}
+
+.components-header {
+ position: sticky;
+ top: 0;
+ /* background-color: rgb(237, 238, 255); */
+ /* background-color: rgb(237, 238, 255); */
+ padding: 20px;
+ z-index: 10;
+ /* border-bottom: 1px solid #e0e0e0; */
+}
+
+.components-container {
+ flex: 1;
+ overflow-y: auto;
+ padding: 20px;
+ scrollbar-width: none; /* Firefox */
+ -ms-overflow-style: none; /* IE and Edge */
+ display: flex;
+ flex-direction: column;
+ 
+ gap: 10px;
+}
+
+/* WebKit 스크롤바 숨기기 */
+.components-container::-webkit-scrollbar {
+ display: none;
 }
 
 .draggable-component {
-  cursor: move;
+ cursor: grab;
+ background-color: white;
 }
 
-.draggable-component:last-child{
-  /* margin-bottom: 30px; */
-  padding-bottom: 50px;
+.draggable-component:active {
+ cursor: grabbing;
+}
+
+.page {
+ flex: 1;
+ display: flex;
+ flex-direction: column;
+ height: 100%;
+ align-items: center;
+ margin-left: 20px;
 }
 
 .canvas {
-  width: 80%;
-  height: 85%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  border: 2px solid #333;
-  position: relative;
-  /* margin: auto; */
+ width: 80%;
+ height: calc(85% - 20px);
+ max-height: calc(85vh - 20px);
+ overflow-x: hidden;
+ overflow-y: auto;
+ border: 2px solid #333;
+ position: relative;
+ background-color: white;
 }
 
 .connections {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
+ position: absolute;
+ top: 0;
+ left: 0;
+ pointer-events: none;
 }
 
 .selected {
-  outline: 2px solid #007bff;
+ outline: 2px solid #1a237e;
 }
 
-.page{
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  align-items: center;
-  gap: 30px;
-  position: relative;
-}
-
-.page > button{
-  margin-top: 20px;
-  width: 200px;
-  height: 60px;
-  /* background-color: white; */
-  /* border: 2px black solid; */
-  /* box-shadow: 0 5px 10px rgba(0,0,0,0.19), 0 3px 3px rgba(0,0,0,0.23); */
+/* 추가 스타일 */
+button {
+ width: 200px;
+ height: 60px;
+ margin: 10px 0;
 }
 </style>

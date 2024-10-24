@@ -1,6 +1,7 @@
 <template>
     <v-card
     elevation="0"
+    class="main"
     >
       <v-tabs
         v-model="tab"
@@ -20,6 +21,11 @@
         <!-- 제출 탭 내용 -->
         <v-window-item value="submit">
           <!-- <ProblemComponent :problem="problemData"></ProblemComponent> -->
+          <Flowchart
+    :flowchartComponents="flowchartComponents"
+    v-model:canvasItems="canvasItems"
+    class="flowchart"
+  />
         </v-window-item>
       </v-window>
     </v-card>
@@ -34,6 +40,20 @@
   import { useAuthCheck } from '../composables/useAuthCheck'
   import { useProblemStore } from '../stores/problem'
   import { useRoute } from 'vue-router';
+import Flowchart from "../components/Flowchart.vue";
+
+const flowchartComponents = ref([
+  { name: "시작", type: "Start" },
+  { name: "프로세스", type: "Process" },
+  { name: "결정", type: "Decision" },
+  { name: "변수", type: "Variable" },
+  { name: "입력", type: "Input" },
+  { name: "출력", type: "Output" },
+  { name: "반복 시작", type: "LoopStart" },
+  { name: "반복끝", type: "LoopEnd" },
+  { name: "기다리기", type: "Delay" },
+]);
+const canvasItems = ref([]);
 
     const problemStore = useProblemStore()
     // const router = useRouter()
@@ -91,4 +111,13 @@
   .v-tab {
     min-width: 100px;
   }
+  .main{
+    width: 100vw;
+    height: 100vh;
+    
+  }
+/* .flowchart {
+  height: 100%;
+  width: 100%;
+} */
   </style>
