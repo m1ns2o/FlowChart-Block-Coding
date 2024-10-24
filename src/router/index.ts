@@ -7,6 +7,7 @@ import Problemlist from '../views/ProblemlistView.vue'
 import ClassView from '../views/ClassView.vue'
 import EditproblemlistView from '../views/EditproblemlistView.vue'
 import EditproblemView from '../views/EditproblemView.vue'
+import ProblemView from '../views/ProblemView.vue'
 
 
 const router = createRouter({
@@ -47,6 +48,11 @@ const router = createRouter({
       path: '/editproblem/:id?',
       name: 'editproblem',
       component: EditproblemView
+    },
+    {
+      path: '/problem/:id?',
+      name: 'problem',
+      component: ProblemView
     },
     {
       path: '/',

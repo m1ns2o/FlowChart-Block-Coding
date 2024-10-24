@@ -30,19 +30,28 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, onMounted, getCurrentInstance } from 'vue'
+  import { ref, onMounted, computed } from 'vue'
   import { useRouter } from 'vue-router'
   import axios from 'axios'; 
   import { useUserStore } from '../stores/user'
   import { storeToRefs } from 'pinia'
   import { useAuthCheck } from '../composables/useAuthCheck'
+  import { useProblemStore } from '../stores/problem'
 
   const { checkAuth } = useAuthCheck()
 
+  const problemStore = useProblemStore()
   const userStore = useUserStore()
   const { classnum, name } = storeToRefs(userStore)
   const router = useRouter()
-  const problems = ref([])
+  // const problems = ref([])
+
+  const getProblemList = async () => {
+  // store에 데이터가 없을 때만 fetch
+  if (!problemStore.isDataLoaded(classnum.value)) {
+    await problemStore.fetchProblems(classnum.value)
+  }
+}
 
   onMounted(async () => {
     // 인증 체크
@@ -50,27 +59,31 @@
 
     // 문제 목록 가져오기
     try {
-      await getProblemlist()
+      await getProblemList()
     } catch (error) {
       console.error('문제 목록을 가져오는데 실패했습니다:', error)
     }
   })
 
 
-const getProblemlist = async () => {
-  try {
-    const response = await axios.get(`classes/number/${classnum.value}`)
-    console.log('API 응답:', response.data)
+// const getProblemlist = async () => {
+//   try {
+//     const response = await axios.get(`classes/number/${classnum.value}`)
+//     console.log('API 응답:', response.data)
     
-    problems.value = response.data.Problems.map((problem: { ID: number; Title: string; }) => ({
-      id: problem.ID,
-      title: problem.Title
-    }))
-  } catch (error) {
-    console.error('문제 목록 가져오기 실패:', error)
-    throw error
-  }
-}
+//     problems.value = response.data.Problems.map((problem: { ID: number; Title: string; }) => ({
+//       id: problem.ID,
+//       title: problem.Title
+//     }))
+//   } catch (error) {
+//     console.error('문제 목록 가져오기 실패:', error)
+//     throw error
+//   }
+// }
+
+
+// store에서 문제 목록 가져오기
+const problems = computed(() => problemStore.getProblemList)
 
 const navigateToProblem = (problemId: number) => {
   router.push(`/problem/${problemId}`)
