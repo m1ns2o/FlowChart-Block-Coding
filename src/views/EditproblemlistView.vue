@@ -157,7 +157,7 @@
 // }
   
   const navigateToProblem = (problemId: number) => {
-    router.push(`/problem/${problemId}`)
+    router.push(`/problem/${problemId}/solved`)
   }
   
   const addNewProblem = () => {

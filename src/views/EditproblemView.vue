@@ -145,7 +145,7 @@
           await axios.post(`problems`, problemData)
         }
         // 성공 메시지 표시 및 리다이렉트
-        router.push('/problems')
+        router.push('/editproblemlist')
       } catch (error) {
         console.error('Failed to submit form:', error)
         // 에러 처리 로직 (예: 에러 메시지 표시)

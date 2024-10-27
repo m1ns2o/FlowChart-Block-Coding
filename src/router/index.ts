@@ -55,6 +55,12 @@ const router = createRouter({
       component: ProblemView
     },
     {
+      path: '/problem/:id/solved',
+      name: 'problemsolved',
+      // component: Flowchart
+      component: () => import('../views/UsersolvedView.vue') //lazy load
+    },
+    {
       path: '/',
       name: 'home',
       component: HomeView
