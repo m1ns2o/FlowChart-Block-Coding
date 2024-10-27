@@ -17,26 +17,26 @@ import { ref, watch } from "vue";
 const props = defineProps({
   name: {
     type: String,
-    default: "결정",
+    default: "선택",
   },
 });
 
 const emit = defineEmits(["update:name", "blur", "enter"]);
 
 const inputValue = ref(props.name);
-const isDefaultValue = ref(props.name === "결정");
+const isDefaultValue = ref(props.name === "선택");
 
 watch(
   () => props.name,
   (newValue) => {
     inputValue.value = newValue;
-    isDefaultValue.value = newValue === "결정";
+    isDefaultValue.value = newValue === "선택";
   }
 );
 
 watch(inputValue, (newValue) => {
   emit("update:name", newValue);
-  isDefaultValue.value = newValue === "결정";
+  isDefaultValue.value = newValue === "선택";
 });
 
 const onFocus = () => {
@@ -47,7 +47,7 @@ const onFocus = () => {
 
 const onBlur = () => {
   if (inputValue.value.trim() === "") {
-    inputValue.value = "결정";
+    inputValue.value = "선택";
     isDefaultValue.value = true;
   }
   emit("blur", inputValue.value);
@@ -55,7 +55,7 @@ const onBlur = () => {
 
 const onEnter = () => {
   if (inputValue.value.trim() === "") {
-    inputValue.value = "결정";
+    inputValue.value = "선택";
     isDefaultValue.value = true;
   }
   emit("enter", inputValue.value);

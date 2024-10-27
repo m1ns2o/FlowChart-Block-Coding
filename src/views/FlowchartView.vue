@@ -15,7 +15,7 @@ import Flowchart from "../components/Flowchart.vue";
 const flowchartComponents = ref([
   { name: "시작", type: "Start" },
   { name: "프로세스", type: "Process" },
-  { name: "결정", type: "Decision" },
+  { name: "선택", type: "Decision" },
   { name: "변수", type: "Variable" },
   { name: "입력", type: "Input" },
   { name: "출력", type: "Output" },

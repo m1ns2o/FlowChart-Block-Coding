@@ -104,6 +104,12 @@ import LoopStart from './LoopStart.vue'
 import LoopEnd from './LoopEnd.vue'
 import Terminal from './Terminal.vue'
 import Delay from './Delay.vue'
+import { useRoute } from 'vue-router';
+import { useUserStore } from '../stores/user'
+import { storeToRefs } from 'pinia'
+import axios from 'axios';
+
+const route = useRoute()
 
 interface FlowchartComponent {
   type: string;
@@ -125,8 +131,10 @@ interface CanvasSize {
   height: number;
 }
 
-defineProps<{
+const props = defineProps<{
   flowchartComponents: FlowchartComponent[]
+  problem?: object
+  showResult: (isCorrect: boolean) => void 
 }>()
 
 const emit = defineEmits(['update:canvasItems'])
@@ -146,8 +154,14 @@ const HORIZONTAL_SPACING = 500
 const Y_AXIS_EXPANSION_FACTOR = 4
 
 const canvasRef = ref<HTMLDivElement | null>(null)
-const canvasSize = ref<CanvasSize>({ width: 1500, height: 2000 })
-const previousCanvasSize = ref<CanvasSize>({ width: 1500, height: 2000 })
+const canvasSize = ref<CanvasSize>({ width: 1000, height: 2000 })
+const previousCanvasSize = ref<CanvasSize>({ width: 1000, height: 2000 })
+
+const userStore = useUserStore()
+
+const id = route.params.id as string
+const { classnum, name } = storeToRefs(userStore)
+
 
 const getComponent = (type: string) => {
   const componentMap: { [key: string]: any } = {
@@ -477,14 +491,14 @@ const decompressData = (compressedData:string) => {
 const saveToLocalStorageAndURL = () => {
   try {
     const compressedData = compressData(canvasItems.value);
-    localStorage.setItem('compressedCanvasItems', compressedData);
+    // localStorage.setItem('compressedCanvasItems', compressedData);
     
     const params = new URLSearchParams();
     params.set('data', compressedData);
     
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     window.history.pushState({}, '', newUrl);
-    console.log('Compressed data saved to localStorage and URL');
+    // console.log('Compressed data saved to localStorage and URL');
   } catch (error) {
     console.error('Error saving compressed data:', error);
   }
@@ -497,14 +511,15 @@ const loadData = () => {
   if (compressedDataFromURL) {
     console.log('Loading compressed data from URL');
     canvasItems.value = decompressData(compressedDataFromURL);
-  } else {
-    console.log('Loading compressed data from localStorage');
-    const compressedDataFromStorage = localStorage.getItem('compressedCanvasItems');
+  } 
+  // else {
+  //   console.log('Loading compressed data from localStorage');
+  //   const compressedDataFromStorage = localStorage.getItem('compressedCanvasItems');
     
-    if (compressedDataFromStorage) {
-      canvasItems.value = decompressData(compressedDataFromStorage);
-    }
-  }
+  //   if (compressedDataFromStorage) {
+  //     canvasItems.value = decompressData(compressedDataFromStorage);
+  //   }
+  // }
 };
 
 interface Connection {
@@ -570,10 +585,14 @@ const compile = (item: SortedCanvasItem): void => {
       code += `${item.name};\n`;
       break;
     case 'Input':
-      compileInput(item.name);
+      // compileInput(item.name);
+      props.problem ? compileInputTest(item.name) : compileInput(item.name);
+      // void (props.problem ? compileInput(item.name) : compileInputTest(item.name));
       break;
     case 'Output':
-      compileOutput(item.name);
+      // compileOutput(item.name);
+      // props.problem ? compileInput(item.name) : compileInputTest(item.name);
+      props.problem ? compileOutputTest(item.name) : compileOutput(item.name);
       break;
     case 'LoopStart':
       compileLoopStart(item.name);
@@ -598,10 +617,10 @@ const compile = (item: SortedCanvasItem): void => {
 
 const compileVariable = (varname:string)=>{
   const variableName = varname.split('=')[0].trim();
-  console.log(variableName)
+  // console.log(variableName)
     if (!variable_list.includes(variableName)) {
       variable_list.push(variableName);
-      console.log(variable_list)
+      // console.log(variable_list)
     }
     code += `let ${varname};\n`;
 }
@@ -613,6 +632,10 @@ const compileInput = (varName: string): void => {
       resolve();
     });
   });\n`;
+}
+
+const compileInputTest = (varName: string): void => {
+  code += `${varName} = (temp = prompt(""), isNaN(Number(temp)) ? temp : Number(temp));`
 }
 
 const compileOutput = (varName: string): void => {
@@ -629,6 +652,20 @@ const compileOutput = (varName: string): void => {
     }
   }
   // code += 'terminal.print(`${' + varName + '}`);\n';
+}
+
+const compileOutputTest = (varName: string): void=>{
+  console.log(variable_list.join)
+  if(varName.includes('(')){
+    code += `console.log(\`${strFormat(varName)}\`)\n`;
+  }else{
+    if(variable_list.includes(varName)){
+      code += `console.log(${varName});\n`;
+    }
+    else{
+      code += `console.log("${varName}");\n`;
+    }
+  }
 }
 
 const compileLoopStart = (condition: string): void => {
@@ -675,19 +712,35 @@ const strFormat = (str: string): string => {
 }
 
 // compile 함수 사용 예시
-const runCompile = (sortedCanvasItems: SortedCanvasItem | null): void => {
+const runCompile = async (sortedCanvasItems: SortedCanvasItem | null): Promise<void> => {
   code = ''; // 코드 초기화
   variable_list = []; // 변수 목록 ���기화
   if (sortedCanvasItems) {
     compile(sortedCanvasItems);
     console.log(code); // 생성된 코드 출력
     
-    terminalRef.value?.openTerminal()
-    nextTick(() => { // DOM 업데이트 후 runCode 실행
-      // terminal_state.value = true;
-      // console.log(terminal_state.value)
-      runCode(terminalRef.value);
-    });
+    // terminalRef.value?.openTerminal()
+
+    if(!props.problem){
+      terminalRef.value?.openTerminal()
+        nextTick(() => { 
+        runCode(terminalRef.value);
+      });
+    }
+    else{
+      const data = {
+        code: code,
+        username: name.value,
+        problemId: Number(id)
+      }
+      console.log(data);
+      const response = await axios.post('/solve', data);
+      console.log(response.data); 
+      const isCorrect =response.data.success;
+     props.showResult(isCorrect);
+    }
+
+    
   } else {
     console.warn('No items to compile');
   }
@@ -725,6 +778,7 @@ onMounted(() => {
   loadData()
   updateCanvasSize()
   window.addEventListener('resize', updateCanvasSize)
+  console.log(props.problem)
 })
 
 onUnmounted(() => {
