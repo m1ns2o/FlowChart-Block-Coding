@@ -98,17 +98,18 @@ interface Problem {
 // console.log('type of problem.ID:', typeof props.problem.ID);
 // console.log('type of problemSorted elements:', typeof props.problemSorted[0]);
 
-const idx = computed(() => {
-  // console.log('Finding index:', props.problemSorted?.indexOf(props.problem.ID));
-  // console.log(props.problem.ID)
-  // console.log(props.problemSorted)
-  return props.problemSorted?.indexOf(props.problem.ID) ?? -1;
-});
+// const idx = computed(() => {
+//   // console.log('Finding index:', props.problemSorted?.indexOf(props.problem.ID));
+//   // console.log(props.problem.ID)
+//   // console.log(props.problemSorted)
+//   return props.problemSorted?.indexOf(props.problem.ID) ?? -1;
+// });
 
 const props = defineProps<{
   problem: Problem;
   classnum: string;
-  problemSorted: number[];
+  // problemSorted: number[];
+  idx: number
 }>();
 </script>
 
