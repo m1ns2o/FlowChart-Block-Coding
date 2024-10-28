@@ -161,6 +161,9 @@ const userStore = useUserStore()
 
 const id = computed(() => Number(route.params.id))
 const { name } = storeToRefs(userStore)
+const storageKey = computed(() =>id.value.toString()+name.value)
+
+
 
 
 const getComponent = (type: string) => {
@@ -489,18 +492,29 @@ const decompressData = (compressedData:string) => {
 };
 
 const saveToLocalStorageAndURL = () => {
-  try {
-    const compressedData = compressData(canvasItems.value);
-    // localStorage.setItem('compressedCanvasItems', compressedData);
-    
-    const params = new URLSearchParams();
-    params.set('data', compressedData);
-    
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.pushState({}, '', newUrl);
-    // console.log('Compressed data saved to localStorage and URL');
-  } catch (error) {
-    console.error('Error saving compressed data:', error);
+  if(id.value){
+    try {
+      const compressedData = compressData(canvasItems.value);
+      localStorage.setItem(storageKey.value, compressedData);
+      
+      // console.log('Compressed data saved to localStorage and URL');
+    } catch (error) {
+      console.error('Error saving compressed data:', error);
+    }
+  }else{
+      try {
+      const compressedData = compressData(canvasItems.value);
+      // localStorage.setItem(storageKey.value, compressedData);
+      
+      const params = new URLSearchParams();
+      params.set('data', compressedData);
+      
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.pushState({}, '', newUrl);
+      // console.log('Compressed data saved to localStorage and URL');
+    } catch (error) {
+      console.error('Error saving compressed data:', error);
+    }
   }
 };
 
@@ -512,14 +526,14 @@ const loadData = () => {
     console.log('Loading compressed data from URL');
     canvasItems.value = decompressData(compressedDataFromURL);
   } 
-  // else {
-  //   console.log('Loading compressed data from localStorage');
-  //   const compressedDataFromStorage = localStorage.getItem('compressedCanvasItems');
+  else {
+    console.log('Loading compressed data from localStorage');
+    const compressedDataFromStorage = localStorage.getItem(storageKey.value);
     
-  //   if (compressedDataFromStorage) {
-  //     canvasItems.value = decompressData(compressedDataFromStorage);
-  //   }
-  // }
+    if (compressedDataFromStorage) {
+      canvasItems.value = decompressData(compressedDataFromStorage);
+    }
+  }
 };
 
 interface Connection {
