@@ -127,7 +127,7 @@ const showResult = async (isCorrect: boolean) => {
       await router.replace(`${nextProblemId}`)
     }
     else{
-      snackbar.value.message = '모든 문제를 해결했습니다! 🎉'
+      snackbar.value.message = '마지막 문제를 해결했습니다! 🎉'
       snackbar.value.color ='success'
       // router.push('/problemlist')
     }

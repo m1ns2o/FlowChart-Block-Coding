@@ -171,7 +171,7 @@
   .main {
     width: 100%;
     height: 100vh;
-    background-color: #f5f5f5;
+
   }
   
   /* 추가적인 스타일 커스터마이징 */
