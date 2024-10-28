@@ -44,7 +44,7 @@
                             </v-avatar>
                             <div class="user-info">
                               <div class="user-name">{{ user.Name }}</div>
-                              <div class="user-class text-caption">{{ user.Classnum }}</div>
+                              <div class="user-class text-caption" style="text-align: left;">{{ user.Classnum }}</div>
                             </div>
                           </div>
                           <div class="d-flex flex-column align-end">
@@ -157,12 +157,72 @@ const getUserSolvedTime = (userName: string) => {
 }
   
   // Polling 시작 함수
-  const startPolling = () => {
+//   const startPolling = () => {
+//     stopPolling() // 기존 polling이 있다면 중지
+//     pollingInterval.value = window.setInterval(async () => {
+//       await getSolvedUsers()
+//     }, 3000) // 1초마다 갱신
+//   }
+// Polling 시작 함수 수정
+const startPolling = () => {
     stopPolling() // 기존 polling이 있다면 중지
     pollingInterval.value = window.setInterval(async () => {
-      await getSolvedUsers()
-    }, 3000) // 1초마다 갱신
-  }
+        // 두 함수를 Promise.all로 동시에 실행
+        await Promise.all([
+            getAllUsers(),
+            getSolvedUsers()
+        ])
+    }, 1000) // 1초마다 갱신
+}
+
+// getAllUsers 함수 에러 처리 개선
+const getAllUsers = async () => {
+    try {
+        const classnum = localStorage.getItem('classnum')
+        if (!classnum) {
+            console.error('Classnum not found in localStorage')
+            return
+        }
+        
+        const response = await axios.get(`/users/class/${classnum}`)
+        if (response.data && response.data.users) {
+            allUsers.value = response.data.users
+            console.log('All Users updated:', allUsers.value)
+        }
+    } catch (error) {
+        console.error('All users fetch error:', error)
+        // 에러 발생시 기존 데이터 유지
+        // allUsers.value = [] // 이 라인 제거
+    }
+}
+
+// getSolvedUsers 함수 에러 처리 개선
+const getSolvedUsers = async () => {
+    try {
+        const response = await axios.get(`/solve/problem/${problemId}`)
+        if (response.data && response.data.success) {
+            solvedUsers.value = response.data.data.solvedUsers || []
+            console.log('Solved Users updated:', solvedUsers.value)
+        }
+    } catch (error) {
+        console.error('Solved users fetch error:', error)
+        // 에러 발생시 기존 데이터 유지
+    }
+}
+
+// 컴포넌트 마운트 시 초기 데이터 로딩
+onMounted(async () => {
+    try {
+        await Promise.all([
+            getProblemDetail(problemId as string),
+            getAllUsers(),
+            getSolvedUsers()
+        ])
+        startPolling()
+    } catch (error) {
+        console.error('Initial data loading error:', error)
+    }
+})
   
   // Polling 중지 함수
   const stopPolling = () => {
@@ -172,14 +232,14 @@ const getUserSolvedTime = (userName: string) => {
     }
   }
   
-  onMounted(async () => {
-    await Promise.all([
-      getProblemDetail(problemId as string),
-      getAllUsers(),
-      getSolvedUsers()
-    ])
-    startPolling()
-  })
+//   onMounted(async () => {
+//     await Promise.all([
+//       getProblemDetail(problemId as string),
+//       getAllUsers(),
+//       getSolvedUsers()
+//     ])
+//     startPolling()
+//   })
   
   onUnmounted(() => {
     stopPolling()
@@ -194,30 +254,30 @@ const getUserSolvedTime = (userName: string) => {
     }
   }
   
-  const getAllUsers = async () => {
-    try {
-      const classnum = localStorage.getItem('classnum')
-      const response = await axios.get(`/users/class/${classnum}`)
-      if (response.data && response.data.users) {
-        allUsers.value = response.data.users
-      }
-    } catch (error) {
-      console.error('All users fetch error:', error)
-      allUsers.value = []
-    }
-  }
+//   const getAllUsers = async () => {
+//     try {
+//       const classnum = localStorage.getItem('classnum')
+//       const response = await axios.get(`/users/class/${classnum}`)
+//       if (response.data && response.data.users) {
+//         allUsers.value = response.data.users
+//       }
+//     } catch (error) {
+//       console.error('All users fetch error:', error)
+//       allUsers.value = []
+//     }
+//   }
   
-  const getSolvedUsers = async () => {
-    try {
-      const response = await axios.get(`/solve/problem/${problemId}`)
-      if (response.data && response.data.success) {
-        solvedUsers.value = response.data.data.solvedUsers || []
-        console.log(solvedUsers.value)
-      }
-    } catch (error) {
-      console.error('Solved users fetch error:', error)
-    }
-  }
+//   const getSolvedUsers = async () => {
+//     try {
+//       const response = await axios.get(`/solve/problem/${problemId}`)
+//       if (response.data && response.data.success) {
+//         solvedUsers.value = response.data.data.solvedUsers || []
+//         console.log(solvedUsers.value)
+//       }
+//     } catch (error) {
+//       console.error('Solved users fetch error:', error)
+//     }
+//   }
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)

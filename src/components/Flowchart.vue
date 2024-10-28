@@ -159,7 +159,7 @@ const previousCanvasSize = ref<CanvasSize>({ width: 1000, height: 2000 })
 
 const userStore = useUserStore()
 
-const id = route.params.id as string
+const id = computed(() => Number(route.params.id))
 const { name } = storeToRefs(userStore)
 
 
@@ -731,7 +731,7 @@ const runCompile = async (sortedCanvasItems: SortedCanvasItem | null): Promise<v
       const data = {
         code: code,
         username: name.value,
-        problemId: Number(id)
+        problemId: id.value,
       }
       console.log(data);
       const response = await axios.post('/solve', data);
