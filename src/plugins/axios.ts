@@ -4,7 +4,7 @@ import axios from 'axios'
 import router from '../router'
 
 // axios 기본 설정
-axios.defaults.baseURL = 'https://flowchart-api.m1ns2o.com/'
+axios.defaults.baseURL = 'http://127.0.0.1:8080/'
 
 // 토큰 관리
 const setAuthToken = (token: string | null) => {

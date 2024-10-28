@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+// import { computed } from 'vue';
 
 interface Problem {
   ID: number;
@@ -105,7 +105,7 @@ interface Problem {
 //   return props.problemSorted?.indexOf(props.problem.ID) ?? -1;
 // });
 
-const props = defineProps<{
+defineProps<{
   problem: Problem;
   classnum: string;
   // problemSorted: number[];

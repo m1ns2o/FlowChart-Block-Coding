@@ -5,7 +5,7 @@
         <div class="aspect-ratio-container">
           <v-card class="card-menu" elevation="1" rounded="lg">
             <v-card-title class="text-h5 font-weight-bold indigo--text text--darken-2 card-title">
-              문제 리스트
+              {{ formTitle }}
             </v-card-title>
             <div class="problem-list-container">
               <v-card-text>
@@ -102,7 +102,7 @@ const problems = ref([])
 const deleteDialog = ref(false)
 const classDeleteDialog = ref(false)
 const editedIndex = ref(-1)
-const editedItem = ref({ id: 0, title: '' })
+// const editedItem = ref({ id: 0, title: '' })
 const deletingItemId = ref(0)
 
 const formTitle = computed(() => {

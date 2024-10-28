@@ -160,7 +160,7 @@ const previousCanvasSize = ref<CanvasSize>({ width: 1000, height: 2000 })
 const userStore = useUserStore()
 
 const id = route.params.id as string
-const { classnum, name } = storeToRefs(userStore)
+const { name } = storeToRefs(userStore)
 
 
 const getComponent = (type: string) => {

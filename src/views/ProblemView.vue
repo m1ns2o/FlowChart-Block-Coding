@@ -73,7 +73,7 @@ const router = useRouter()
 const problemStore = useProblemStore()
 const userStore = useUserStore()
 
-const { classnum, name } = storeToRefs(userStore)
+const { classnum } = storeToRefs(userStore)
 const { checkAuth } = useAuthCheck()
 
 const tab = ref('problem')

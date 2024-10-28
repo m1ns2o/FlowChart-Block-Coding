@@ -7,14 +7,13 @@
               <!-- 상단 고정 타이틀 -->
               <v-card-title class="text-h5 font-weight-bold indigo--text text--darken-2 card-title">
                 <div>
-                  <!-- <span>문제 해결 현황</span> -->
-                   <div>문제 해결 현황</div>
+                  <div>문제 해결 현황</div>
                   <v-chip
                     class="ml-2"
-                    :color="getTotalSolvedCount > 0 ? 'success' : 'grey'"
+                    :color="solvedUsers.length > 0 ? 'success' : 'grey'"
                     small
                   >
-                    {{ getTotalSolvedCount }}/{{ totalStudents }}명 해결
+                    {{ solvedUsers.length }}/{{ totalStudents }}명 해결
                   </v-chip>
                 </div>
               </v-card-title>
@@ -32,12 +31,12 @@
                         class="solved-card" 
                         elevation="0" 
                         outlined
-                        :class="{ 'solved': isUserSolved(user.ID) }"
+                        :class="{ 'solved': isUserSolved(user.Name) }"
                       >
                         <v-card-text class="d-flex align-center justify-space-between">
                           <div class="d-flex align-center">
                             <v-avatar
-                              :color="isUserSolved(user.ID) ? 'success' : 'grey'"
+                              :color="isUserSolved(user.Name) ? 'success' : 'grey'"
                               size="36"
                               class="mr-3 white--text"
                             >
@@ -50,7 +49,7 @@
                           </div>
                           <div class="d-flex flex-column align-end">
                             <v-chip
-                              v-if="isUserSolved(user.ID)"
+                              v-if="isUserSolved(user.Name)"
                               color="success"
                               small
                               class="mb-1"
@@ -65,8 +64,8 @@
                             >
                               미해결
                             </v-chip>
-                            <div class="solved-time text-caption" v-if="isUserSolved(user.ID)">
-                              {{ formatDate(getUserSolvedTime(user.ID)) }}
+                            <div class="solved-time text-caption" v-if="isUserSolved(user.Name)">
+                              {{ formatDate(getUserSolvedTime(user.Name)) }}
                             </div>
                           </div>
                         </v-card-text>
@@ -121,11 +120,6 @@
     Classnum: string
   }
   
-  interface ClassResponse {
-    classnum: string
-    users: ClassUser[]
-  }
-  
   interface SolvedUser {
     userId: number
     userName: string
@@ -152,40 +146,22 @@
     return allUsers.value.length
   })
   
-  // 중복 제거된 해결한 사용자 목록
-  const uniqueSolvedUsers = computed(() => {
-    const userMap = new Map<number, SolvedUser>()
-    solvedUsers.value.forEach(user => {
-      if (!userMap.has(user.userId) || 
-          new Date(user.solvedAt) > new Date(userMap.get(user.userId)!.solvedAt)) {
-        userMap.set(user.userId, user)
-      }
-    })
-    return Array.from(userMap.values())
-  })
-  
-  // 총 해결한 학생 수
-  const getTotalSolvedCount = computed(() => {
-    return uniqueSolvedUsers.value.length
-  })
-  
   // 사용자가 문제를 해결했는지 확인하는 함수
-  const isUserSolved = (userId: number) => {
-    return uniqueSolvedUsers.value.some(user => user.userId === userId)
-  }
-  
-  // 사용자의 해결 시간을 반환하는 함수
-  const getUserSolvedTime = (userId: number) => {
-    const user = uniqueSolvedUsers.value.find(user => user.userId === userId)
+  const isUserSolved = (userName: string) => {
+    return solvedUsers.value.some(user => user.userName === userName)
+}
+
+const getUserSolvedTime = (userName: string) => {
+    const user = solvedUsers.value.find(user => user.userName === userName)
     return user ? user.solvedAt : ''
-  }
+}
   
   // Polling 시작 함수
   const startPolling = () => {
     stopPolling() // 기존 polling이 있다면 중지
     pollingInterval.value = window.setInterval(async () => {
-      await getSolvedUsers("1")
-    }, 5000) // 5초마다 갱신
+      await getSolvedUsers()
+    }, 3000) // 1초마다 갱신
   }
   
   // Polling 중지 함수
@@ -200,7 +176,7 @@
     await Promise.all([
       getProblemDetail(problemId as string),
       getAllUsers(),
-      getSolvedUsers("1")
+      getSolvedUsers()
     ])
     startPolling()
   })
@@ -231,11 +207,12 @@
     }
   }
   
-  const getSolvedUsers = async (classId: string) => {
+  const getSolvedUsers = async () => {
     try {
       const response = await axios.get(`/solve/problem/${problemId}`)
       if (response.data && response.data.success) {
         solvedUsers.value = response.data.data.solvedUsers || []
+        console.log(solvedUsers.value)
       }
     } catch (error) {
       console.error('Solved users fetch error:', error)
@@ -297,8 +274,6 @@
     z-index: 1;
     padding: 16px;
   }
-  
-
   
   .problem-list-container {
     flex: 1;

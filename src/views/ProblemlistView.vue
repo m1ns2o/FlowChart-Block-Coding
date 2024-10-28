@@ -32,9 +32,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+// import axios from 'axios'
 import { useUserStore } from '../stores/user'
 import { storeToRefs } from 'pinia'
 import { useAuthCheck } from '../composables/useAuthCheck'
@@ -44,7 +44,7 @@ const { checkAuth } = useAuthCheck()
 
 const problemStore = useProblemStore()
 const userStore = useUserStore()
-const { classnum, name } = storeToRefs(userStore)
+const { classnum } = storeToRefs(userStore)
 const router = useRouter()
 
 const getProblemList = async () => {
