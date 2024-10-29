@@ -1,68 +1,69 @@
 <template>
-    <div class="terminal-wrapper" v-show="localToggle">
-      <div class="terminal-content">
-        <div class="terminal-header">
-          <button class="close-button" @click="closeTerminal">×</button>
-        </div>
-        <div class="terminal-template" ref="terminalRef">
-          <div v-for="(item, index) in terminalContent" :key="index">
-            <p v-if="item.type === 'print'">{{ item.content }}</p>
-            <div v-else-if="item.type === 'scan'" class="scan-input">
-              <!-- <input 
+  <div class="terminal-wrapper" v-show="localToggle">
+    <div class="terminal-content">
+      <div class="terminal-header">
+        <button class="close-button" @click="closeTerminal">×</button>
+      </div>
+      <div class="terminal-template" ref="terminalRef">
+        <div v-for="(item, index) in terminalContent" :key="index">
+          <p v-if="item.type === 'print'">{{ item.content }}</p>
+          <div v-else-if="item.type === 'scan'" class="scan-input">
+            <!-- <input 
                 v-model="item.value" 
                 @keyup.enter="submitScan(index)"
                 :ref="el => { if (el) scanInputRefs[index] = el }"
                 placeholder="Enter your input..."
               /> -->
-              <input 
-                v-model="item.value" 
-                @keyup.enter="submitScan(index)"
-                :ref="el => { if (el) scanInputRefs[index] = el as HTMLInputElement }"
-                placeholder="Enter your input..."
-                />
-
-            </div>
+            <input
+              v-model="item.value"
+              @keyup.enter="submitScan(index)"
+              :ref="el => { if (el) scanInputRefs[index] = el as HTMLInputElement }"
+              placeholder="Enter your input..."
+            />
           </div>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script setup lang="ts">
+  </div>
+</template>
+
+<script setup lang="ts">
   import { ref, defineExpose, nextTick } from 'vue';
-  
-//   const props = defineProps({
-//     toggle: {
-//       type: Boolean,
-//       required: true,
-//     }
-//   });
+
+  //   const props = defineProps({
+  //     toggle: {
+  //       type: Boolean,
+  //       required: true,
+  //     }
+  //   });
 
   const localToggle = ref(false);
   const emit = defineEmits(['update:toggle']);
-  
-//   const emit = defineEmits(['update:toggle']);
-  
-  const terminalContent = ref<Array<{type: 'print' | 'scan', content?: string, value?: string}>>([]);
+
+  //   const emit = defineEmits(['update:toggle']);
+
+  const terminalContent = ref<
+    Array<{ type: 'print' | 'scan'; content?: string; value?: string }>
+  >([]);
   const scanInputRefs = ref<Array<HTMLInputElement>>([]);
   const terminalRef = ref<HTMLElement | null>(null);
   let currentCallback: ((value: string) => void) | null = null;
-  
+
   // const print = (content: string) => {
   //   terminalContent.value.push({ type: 'print', content });
   //   scrollToBottom();
   // };
-  
+
   const print = async (content: string): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      terminalContent.value.push({ type: 'print', content });
-      scrollToBottom();
-      resolve();
-    }, 0);
-  });
-};
-  
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        terminalContent.value.push({ type: 'print', content });
+        scrollToBottom();
+        resolve();
+      }, 0);
+    });
+  };
+
   const scan = (callback: (value: string) => void) => {
     currentCallback = callback;
     const index = terminalContent.value.length;
@@ -71,17 +72,20 @@
       scanInputRefs.value[index]?.focus();
     });
   };
-  
+
   const submitScan = (index: number) => {
     const scannedValue = terminalContent.value[index].value || '';
-    terminalContent.value[index] = { type: 'print', content: `> ${scannedValue}` };
+    terminalContent.value[index] = {
+      type: 'print',
+      content: `> ${scannedValue}`,
+    };
     scrollToBottom();
     if (currentCallback) {
       currentCallback(scannedValue);
       currentCallback = null;
     }
   };
-  
+
   const scrollToBottom = () => {
     nextTick(() => {
       if (terminalRef.value) {
@@ -90,11 +94,11 @@
     });
   };
 
-  const clearTerminal = ()=>{
+  const clearTerminal = () => {
     terminalContent.value = [];
     scanInputRefs.value = [];
-  }
-  
+  };
+
   const closeTerminal = () => {
     // emit('update:toggle', false);
     localToggle.value = false;
@@ -105,23 +109,23 @@
     localToggle.value = true;
     emit('update:toggle', true);
   };
-  
+
   defineExpose({
     print,
     scan,
     openTerminal,
     clearTerminal,
   });
-  
-//   watch(() => props.toggle, (newValue) => {
-//     if (newValue) {
-//       // 터미널이 열릴 때 필요한 초기화 작업을 여기에 추가할 수 있습니다.
-//       scrollToBottom();
-//     }
-//   });
-  </script>
-  
-  <style scoped>
+
+  //   watch(() => props.toggle, (newValue) => {
+  //     if (newValue) {
+  //       // 터미널이 열릴 때 필요한 초기화 작업을 여기에 추가할 수 있습니다.
+  //       scrollToBottom();
+  //     }
+  //   });
+</script>
+
+<style scoped>
   .terminal-wrapper {
     position: fixed;
     bottom: 0;
@@ -130,7 +134,7 @@
     height: 60%;
     z-index: 1000;
   }
-  
+
   .terminal-content {
     position: relative;
     width: 100%;
@@ -139,7 +143,7 @@
     display: flex;
     flex-direction: column;
   }
-  
+
   .terminal-header {
     position: absolute;
     top: 0;
@@ -147,7 +151,7 @@
     padding: 10px;
     z-index: 1001;
   }
-  
+
   .close-button {
     background-color: #252525;
     color: white;
@@ -161,7 +165,7 @@
     align-items: center;
     justify-content: center;
   }
-  
+
   .terminal-template {
     flex-grow: 1;
     color: #ffffff;
@@ -173,7 +177,7 @@
     font-size: 20px;
     text-align: left;
   }
-  
+
   .scan-input input {
     background-color: #333;
     color: #fff;
@@ -183,8 +187,8 @@
     margin-top: 5px;
     font-size: 20px;
   }
-  
+
   p {
     margin: 5px 0;
   }
-  </style>
+</style>

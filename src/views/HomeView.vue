@@ -72,17 +72,17 @@
 <script setup lang="ts"></script>
 
 <style scoped>
-.card-hover {
-  transition: all 0.3s ease;
-}
-.card-hover:hover {
-  transform: scale(1.05);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-}
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  }
 
-.main {
-  width: 100%;
-  height: 100%;
-  background-color: #f5f5f5;
-}
+  .main {
+    width: 100%;
+    height: 100%;
+    background-color: #f5f5f5;
+  }
 </style>

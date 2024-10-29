@@ -6,7 +6,9 @@
     "build": "vue-tsc -b && vite build",
     "lint": "vue-cli-service lint",
     "dev": "vite",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write \"src/**/*.{js,vue,css,scss}\"",
+    "format:check": "prettier --check \"src/**/*.{js,vue,css,scss}\""
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
