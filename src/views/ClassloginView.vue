@@ -133,7 +133,7 @@ const submitForm = async () => {
     isLoading.value = true
     
     try {
-      const response = await axios.post('http://127.0.0.1:8080/users', {
+      const response = await axios.post('/users', {
         classnum: classroomNumber.value,
         name: name.value
       }, {

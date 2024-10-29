@@ -1,16 +1,18 @@
 <template>
-  <!-- <div style="width: 100vw; height: 100vh;"> -->
   <Flowchart
     :flowchartComponents="flowchartComponents"
     v-model:canvasItems="canvasItems"
     class="flowchart"
   />
-  <!-- </div> -->
+  
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
+// import { useRouter } from "vue-router";
 import Flowchart from "../components/Flowchart.vue";
+
+// const router = useRouter();
 
 const flowchartComponents = ref([
   { name: "시작", type: "Start" },
@@ -40,4 +42,6 @@ body,
   height: 100%;
   width: 100%;
 }
+
+
 </style>

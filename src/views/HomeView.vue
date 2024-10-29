@@ -43,6 +43,27 @@
             </v-card-item>
           </v-card>
         </v-col>
+
+        <v-col cols="12" sm="6" md="4" lg="4" xl="3" class="text-center">
+          <v-card
+            class="mx-auto my-6 card-hover"
+            width="300"
+            height="360"
+            elevation="1"
+            href="/playground"
+          >
+            <v-card-item
+              class="text-center d-flex flex-column align-center justify-center"
+              style="height: 100%"
+            >
+              <v-avatar size="120" color="indigo-darken-2" class="mb-6">
+                <v-icon size="64" color="white">mdi-lightbulb-on</v-icon>
+              </v-avatar>
+              <v-card-title class="text-h4 mb-2">Playground</v-card-title>
+              <v-card-text class="text-body-1"> 자유롭게 실습하기 </v-card-text>
+            </v-card-item>
+          </v-card>
+        </v-col>
       </v-row>
     </v-container>
   </div>

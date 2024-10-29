@@ -14,8 +14,8 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/flowchart',
-      name: 'flowchart',
+      path: '/playground',
+      name: 'playground',
       // component: Flowchart
       component: () => import('../views/FlowchartView.vue') //lazy load
     },

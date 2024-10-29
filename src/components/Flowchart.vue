@@ -1,6 +1,7 @@
 <template>
   <div class="main">
-    <div class="components-list bg-indigo-lighten-5 pa-4 rounded-lg">
+    <div>
+      <div class="components-list bg-indigo-lighten-5 pa-4 rounded-lg">
       <div class="components-header text-h6 mb-4 text-indigo-darken-2">Components</div>
       <div class="components-container">
         <div
@@ -14,6 +15,20 @@
         </div>
       </div>
     </div>
+    <v-btn
+      v-if="!id"
+      color="indigo-darken-2"
+      size="large"
+      elevation="4"
+      rounded="pill"
+      class="home-button"
+      @click="router.push('/')"
+    >
+      <v-icon class="mr-2">mdi-home</v-icon>
+      메인화면으로
+    </v-btn>
+    </div>
+    
     
     <div class="page">
       <Terminal ref="terminalRef"/>
@@ -104,12 +119,13 @@ import LoopStart from './LoopStart.vue'
 import LoopEnd from './LoopEnd.vue'
 import Terminal from './Terminal.vue'
 import Delay from './Delay.vue'
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '../stores/user'
 import { storeToRefs } from 'pinia'
 import axios from 'axios';
 
 const route = useRoute()
+const router = useRouter()
 
 interface FlowchartComponent {
   type: string;
@@ -815,6 +831,7 @@ const terminalRef = ref<InstanceType<typeof Terminal> | null>(null);
 
 .components-list {
  min-width: 270px;
+ /* width: 300px; */
  position: relative;
  display: flex;
  flex-direction: column;
