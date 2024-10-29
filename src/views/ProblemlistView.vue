@@ -122,6 +122,8 @@
     flex: 1;
     overflow-y: auto;
     padding: 0 16px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
   }
 
   .problem-card {

@@ -26,6 +26,7 @@
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-service": "^5.0.8",
+    "@vue/devtools": "^7.5.6",
     "@vue/eslint-config-typescript": "^11.0.3",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^8.3.0",

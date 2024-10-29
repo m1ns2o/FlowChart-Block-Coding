@@ -8,7 +8,7 @@ interface Problem {
 
 interface ProblemState {
   problems: Problem[]
-  loadedClassNumbers: number[] // 이미 로드된 클래스 번호들을 추적
+  loadedClassNumbers: string[] // 이미 로드된 클래스 번호들을 추적
 }
 
 export const useProblemStore = defineStore('problem', {
@@ -18,7 +18,7 @@ export const useProblemStore = defineStore('problem', {
   }),
   
   actions: {
-    async fetchProblems(classnum: number) {
+    async fetchProblems(classnum: string) {
       // 이미 해당 클래스의 문제들이 로드되어 있는지 확인
       if (this.loadedClassNumbers.includes(classnum)) {
         console.log('캐시된 데이터 사용')
@@ -51,6 +51,6 @@ export const useProblemStore = defineStore('problem', {
 
   getters: {
     getProblemList: (state) => state.problems,
-    isDataLoaded: (state) => (classnum: number) => state.loadedClassNumbers.includes(classnum)
+    isDataLoaded: (state) => (classnum: string) => state.loadedClassNumbers.includes(classnum)
   }
 })

@@ -12,3 +12,12 @@ export enum FlowchartComponentType {
     x: number;
     y: number;
   }
+
+  export interface Problem {
+    ID: number;
+    Title: string;
+    Content: string;
+    TestcaseInput: string;
+    TestcaseOutput: string;
+    ClassID: 0;
+  }

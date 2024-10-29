@@ -96,17 +96,18 @@
 
 <script setup lang="ts">
   import { useRouter } from 'vue-router';
+  import { Problem } from '../types';
 
   const router = useRouter();
 
-  interface Problem {
-    ID: number;
-    Title: string;
-    Content: string;
-    TestcaseInput: string;
-    TestcaseOutput: string;
-    ClassID: number;
-  }
+  // interface Problem {
+  //   ID: number;
+  //   Title: string;
+  //   Content: string;
+  //   TestcaseInput: string;
+  //   TestcaseOutput: string;
+  //   ClassID: number;
+  // }
 
   defineProps<{
     problem: Problem;

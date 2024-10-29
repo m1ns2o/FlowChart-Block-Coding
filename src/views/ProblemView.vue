@@ -53,6 +53,7 @@
   import { useProblemStore } from '../stores/problem';
   import { useRoute, useRouter } from 'vue-router';
   import Flowchart from '../components/Flowchart.vue';
+  import { Problem } from '../types';
 
   const flowchartComponents = ref([
     { name: '시작', type: 'Start' },
@@ -75,7 +76,14 @@
   const { checkAuth } = useAuthCheck();
 
   const tab = ref('problem');
-  const problemData = ref({});
+  const problemData = ref<Problem>({
+    ID: 0,
+    Title: '',
+    Content: '',
+    TestcaseInput: '',
+    TestcaseOutput: '',
+    ClassID: 0,
+  });
   const canvasItems = ref([]);
 
   const problems = computed(() => problemStore.getProblemList);

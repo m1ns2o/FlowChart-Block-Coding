@@ -2,8 +2,8 @@
 import { defineStore } from 'pinia'
 
 interface UserState {
-  classnum: string | null;
-  name: string | null;
+  classnum: string;
+  name: string;
 }
 
 // 쿠키 관련 타입 정의
@@ -40,8 +40,8 @@ export const useUserStore = defineStore({
   id: 'user', // id 추가
 
   state: (): UserState => ({
-    classnum: null,
-    name: null
+    classnum: '',
+    name: '',
   }),
 
   getters: {
@@ -73,8 +73,8 @@ export const useUserStore = defineStore({
     },
 
     resetUserInfo(): void {
-      this.classnum = null;
-      this.name = null;
+      this.classnum = '';
+      this.name = '';
     }
   }
 });

@@ -846,7 +846,7 @@
         const response = await axios.post('/solve', data);
         console.log(response.data);
         const isCorrect = response.data.success;
-        props.showResult(isCorrect);
+        props.showResult?.(isCorrect);
       }
     } else {
       console.warn('No items to compile');
