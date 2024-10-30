@@ -97,7 +97,7 @@
                 block
                 @click="goBack"
               >
-                <v-icon left>mdi-arrow-left</v-icon>
+                <v-icon left>{{ icons.arrowLeft }}</v-icon>
                 문제 목록으로 돌아가기
               </v-btn>
             </v-card-actions>
@@ -112,6 +112,7 @@
   import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import axios from 'axios';
+  import { icons } from '../plugins/icons';
 
   const router = useRouter();
   const route = useRoute();

@@ -29,7 +29,7 @@
         class="home-button"
         @click="router.push('/')"
       >
-        <v-icon class="mr-2">mdi-home</v-icon>
+        <v-icon class="mr-2">{{ icons.home }}</v-icon>
         메인화면으로
       </v-btn>
     </div>
@@ -42,7 +42,7 @@
         elevation="2"
         @click="runCompile(sortedCanvasItems)"
       >
-        <v-icon left class="mr-2">mdi-play</v-icon>
+        <v-icon left class="mr-2">{{ icons.play }}</v-icon>
         RUN
       </v-btn>
       <div
@@ -159,6 +159,7 @@
   import { useRoute, useRouter } from 'vue-router';
   import { useUserStore } from '../stores/user';
   import { storeToRefs } from 'pinia';
+  import { icons } from '../plugins/icons';
   import axios from 'axios';
 
   const route = useRoute();

@@ -15,7 +15,7 @@
               style="height: 100%"
             >
               <v-avatar size="120" color="indigo-darken-2" class="mb-6">
-                <v-icon size="64" color="white">mdi-school</v-icon>
+                <v-icon size="64" color="white">{{ icons.school }}</v-icon>
               </v-avatar>
               <v-card-title class="text-h4 mb-2">학생</v-card-title>
               <v-card-text class="text-body-1"> 클래스룸 입장하기 </v-card-text>
@@ -36,7 +36,7 @@
               style="height: 100%"
             >
               <v-avatar size="120" color="indigo-darken-2" class="mb-6">
-                <v-icon size="64" color="white">mdi-human-male-board</v-icon>
+                <v-icon size="64" color="white">{{ icons.teacher }}</v-icon>
               </v-avatar>
               <v-card-title class="text-h4 mb-2">교사</v-card-title>
               <v-card-text class="text-body-1"> 클래스룸 만들기 </v-card-text>
@@ -57,7 +57,7 @@
               style="height: 100%"
             >
               <v-avatar size="120" color="indigo-darken-2" class="mb-6">
-                <v-icon size="64" color="white">mdi-lightbulb-on</v-icon>
+                <v-icon size="64" color="white">{{ icons.lightbulb }}</v-icon>
               </v-avatar>
               <v-card-title class="text-h4 mb-2">Playground</v-card-title>
               <v-card-text class="text-body-1"> 자유롭게 실습하기 </v-card-text>
@@ -69,7 +69,9 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  import { icons } from '../plugins/icons';
+</script>
 
 <style scoped>
   .card-hover {

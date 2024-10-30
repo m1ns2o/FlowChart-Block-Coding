@@ -40,7 +40,7 @@
                   color="indigo"
                   label-color="indigo-darken-2"
                   :type="showPassword ? 'text' : 'password'"
-                  :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  :append-inner-icon="showPassword ? icons.eye : icons.eyeOff"
                   @click:append-inner="showPassword = !showPassword"
                 ></v-text-field>
                 <v-btn
@@ -74,6 +74,7 @@
   import { ref, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import axios from 'axios';
+  import { icons } from '../plugins/icons';
 
   const initialLoading = ref(true);
   const formValid = ref(false);

@@ -30,7 +30,7 @@
             <v-expansion-panel-title>
               <div class="d-flex align-center">
                 <v-icon
-                  icon="mdi-test-tube"
+                  :icon="icons.testTube"
                   class="me-2 text-indigo-darken-2"
                 ></v-icon>
                 입출력 예시
@@ -42,7 +42,7 @@
                   <v-card variant="outlined" class="pa-4">
                     <div class="text-subtitle-2 font-weight-bold mb-2">
                       <v-icon
-                        icon="mdi-arrow-right-bold-box"
+                        :icon="icons.arrowRightBox"
                         color="indigo-darken-2"
                         class="me-2"
                       ></v-icon>
@@ -57,7 +57,7 @@
                   <v-card variant="outlined" class="pa-4">
                     <div class="text-subtitle-2 font-weight-bold mb-2">
                       <v-icon
-                        icon="mdi-arrow-left-bold-box"
+                        :icon="icons.arrowLeftBox"
                         color="indigo-darken-2"
                         class="me-2"
                       ></v-icon>
@@ -83,7 +83,7 @@
             color="indigo-darken-2"
             variant="outlined"
             class="list-button"
-            prepend-icon="mdi-format-list-bulleted"
+            :prepend-icon="icons.list"
             @click="router.go(-1)"
           >
             문제 리스트
@@ -97,6 +97,7 @@
 <script setup lang="ts">
   import { useRouter } from 'vue-router';
   import { Problem } from '../types';
+  import { icons } from '../plugins/icons';
 
   const router = useRouter();
 

@@ -41,7 +41,7 @@
                             variant="plain"
                             class="action-btn"
                           >
-                            <v-icon left>mdi-pencil</v-icon>
+                            <v-icon left>{{ icons.pencil }}</v-icon>
                           </v-btn>
                           <v-btn
                             @click="openDeleteDialog(problem.id)"
@@ -51,7 +51,7 @@
                             class="action-btn"
                             color="red"
                           >
-                            <v-icon left>mdi-delete</v-icon>
+                            <v-icon left>{{ icons.delete }}</v-icon>
                           </v-btn>
                         </div>
                       </v-card-text>
@@ -70,7 +70,7 @@
                 height="42"
                 @click="addNewProblem"
               >
-                <v-icon left>mdi-plus</v-icon> 새 문제 추가
+                <v-icon left>{{ icons.plus }}</v-icon> 새 문제 추가
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -87,7 +87,7 @@
       elevation="4"
       @click="openClassDeleteDialog"
     >
-      <v-icon size="24" color="red darken-1">mdi-delete</v-icon>
+      <v-icon size="24" color="red darken-1">{{ icons.delete }}</v-icon>
       <!-- 아이콘 색상을 빨간색으로 변경 -->
     </v-btn>
 
@@ -125,6 +125,7 @@
   import { ref, computed, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import axios from 'axios';
+  import { icons } from '../plugins/icons';
 
   // Problem 인터페이스 정의
   interface Problem {
