@@ -18,6 +18,7 @@
       <!-- 제출 탭 내용 -->
       <v-window-item value="submit">
         <Flowchart
+        ref="flowchartRef"
           :flowchartComponents="flowchartComponents"
           :problem="problemData"
           :showResult="showResult"
@@ -54,6 +55,7 @@
   import { useRoute, useRouter } from 'vue-router';
   import Flowchart from '../components/Flowchart.vue';
   import { Problem } from '../types';
+  const flowchartRef = ref<InstanceType<typeof Flowchart> | null>(null)
 
   const flowchartComponents = ref([
     { name: '시작', type: 'Start' },
@@ -109,6 +111,7 @@
       if (!problemStore.isDataLoaded(classnum.value)) {
         await problemStore.fetchProblems(classnum.value);
       }
+      flowchartRef.value?.loadData()
       await getProblemData();
     } catch (error) {
       console.error('문제 데이터 초기화 실패:', error);

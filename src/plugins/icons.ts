@@ -15,8 +15,8 @@ import {
     mdiHumanMaleBoard,
     mdiLightbulbOn,
     mdiArrowLeft,
-    mdiEye,        // 추가
-    mdiEyeOff 
+    mdiEye,
+    mdiEyeOff
 } from '@mdi/js'
 
 export const icons = {
@@ -33,16 +33,15 @@ export const icons = {
     teacher: mdiHumanMaleBoard,
     lightbulb: mdiLightbulbOn,
     arrowLeft: mdiArrowLeft,
-    eye: mdiEye,           // 추가
-    eyeOff: mdiEyeOff  
+    eye: mdiEye,
+    eyeOff: mdiEyeOff
 }
 
 const customSvgNamespace: IconSet = {
     component: (props: IconProps) => {
-        const { icon, color } = props
+        const { icon } = props
         return h('span', {
             class: ['mdi-custom'],
-            style: color ? `color: ${color};` : undefined,
             innerHTML: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 100%; height: 100%;">
                 <path fill="currentColor" d="${icon}"></path>
             </svg>`

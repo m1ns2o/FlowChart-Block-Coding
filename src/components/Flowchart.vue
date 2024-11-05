@@ -139,6 +139,7 @@
     onUnmounted,
     defineProps,
     defineEmits,
+    defineExpose,
     nextTick,
   } from 'vue';
   import {
@@ -190,6 +191,8 @@
     problem?: object;
     showResult?: (isCorrect: boolean) => void;
   }>();
+
+  
 
   const emit = defineEmits(['update:canvasItems']);
 
@@ -605,6 +608,7 @@
   };
 
   const loadData = () => {
+    canvasItems.value = []
     const params = new URLSearchParams(window.location.search);
     const compressedDataFromURL = params.get('data');
 
@@ -897,6 +901,9 @@
   onUnmounted(() => {
     window.removeEventListener('resize', updateCanvasSize);
   });
+  defineExpose({
+    loadData,
+  })
 
   const terminalRef = ref<InstanceType<typeof Terminal> | null>(null);
 </script>
